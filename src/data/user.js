@@ -1,83 +1,81 @@
 const INFO = {
 	main: {
-		title: "Reactfolio by truethari",
-		name: "Tharindu N.",
-		email: "mail@tharindu.dev",
+		title: "Emmanuel Sibanda",
+		name: "Emmanuel Sibanda",
+		email: "emmanuelsibandaus@gmail.com",
 		logo: "../logo.png",
 	},
 
 	socials: {
-		twitter: "https://twitter.com/",
-		github: "https://github.com/",
-		linkedin: "https://linkedin.com/",
-		instagram: "https://instagram.com/",
-		stackoverflow: "https://stackoverflow.com/",
-		facebook: "https://facebook.com/",
+		twitter: "https://x.com/Emmoemm",
+		github: "https://github.com/EmmS21?tab=repositories",
+		linkedin: "https://www.linkedin.com/in/emmanuel-s-42b49176/"
 	},
 
 	homepage: {
-		title: "Full-stack web and mobile app developer, and amateur astronaut.",
+		title: "Software Engineer with experience in Data Analysis in marketing contexts.",
 		description:
-			"I am a backend developer with expertise in Node.js. I have experience in building scalable, secure and reliable web applications using various frameworks and technologies. I enjoy solving complex problems and learning new skills. I am passionate about creating high-quality code that follows best practices and industry standards. I am always looking for new challenges and opportunities to grow as a developer.",
+			"My name is Emmanuel Sibanda, I am a Software Engineer with experience in Data Analysis in the marketing context. I am comfortable building robust data pipelines, training and fine tuning machine learning models to generate deeper insights, intergrate data into visually appealing frontends and explaining the output of the data.",
 	},
 
 	about: {
-		title: "I’m Tharindu N. I live in Sri Lanka, where I design the future.",
+		title: "My name is Emmanuel Sibanda. I live between New York and Austin.",
 		description:
-			"I've worked on a variety of projects over the years and I'm proud of the progress I've made. Many of these projects are open-source and available for others to explore and contribute to. If you're interested in any of the projects I've worked on, please feel free to check out the code and suggest any improvements or enhancements you might have in mind. Collaborating with others is a great way to learn and grow, and I'm always open to new ideas and feedback.",
+			"My intersection of interests and skills lie between; fine tuning AI/ML models, analysing data within the marketing context, building data pipelines and buiding full stack software engineering projects.",
 	},
 
 	articles: {
-		title: "I'm passionate about pushing the boundaries of what's possible and inspiring the next generation of innovators.",
+		title: "Some of the articles I have written.",
 		description:
-			"Chronological collection of my long-form thoughts on programming, leadership, product design, and more.",
+			"To read more of my articles here are links to my blogs. HashNode: https://emmanuelsibanda.hashnode.dev/  HackerNoon: https://hackernoon.com/u/emmanuels and Towards Data Science: https://towardsdatascience.com/i-decided-to-download-my-social-media-data-facebook-linkedin-and-twitter-with-the-intention-of-64eabf961ed1 ",
 	},
 
 	projects: [
 		{
-			title: "Project 1",
+			title: "AIGuideCoder",
 			description:
-				"Lorem ipsum dolor sit amet. Et incidunt voluptatem ex tempore repellendus qui dicta nemo sit deleniti minima.",
-			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
-			linkText: "View Project",
-			link: "https://github.com",
+				"A platform to help you practice for coding interviews guided by AI.",
+			logo: "https://peerprogrammingplatform.vercel.app/static/media/thegradientboostlogo.dcd25b660df1ae3c878e.png",
+			linkText: "View Web App",
+			link: "https://peerprogrammingplatform.vercel.app/",
 		},
 
 		{
-			title: "Project 2",
+			title: "Budgeting Buddy and Investment Optimizer",
 			description:
-				"Lorem ipsum dolor sit amet. Et incidunt voluptatem ex tempore repellendus qui dicta nemo sit deleniti minima.",
-			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/python/python.png",
-			linkText: "View Project",
-			link: "https://github.com",
+				"A pipeline of containers running AI Agents to give you nuanced budgeting and investment advice",
+			logo: "https://www.recipesforwellbeing.org/wp-content/uploads/2022/03/199-Tips-for-financial-budgeting_landscape.jpg",
+			linkText: "Watch Presentation",
+			link: "https://www.youtube.com/watch?v=YxfW-TgOGkc&t=1s",
 		},
 
 		{
-			title: "Project 3",
+			title: "AI Unit Tests",
 			description:
-				"Lorem ipsum dolor sit amet. Et incidunt voluptatem ex tempore repellendus qui dicta nemo sit deleniti minima.",
-			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/html/html.png",
-			linkText: "View Project",
-			link: "https://github.com",
+				"An AI Agent writing unit tests for Typescript projects.",
+			logo: "https://cdn.hashnode.com/res/hashnode/image/upload/v1714407286364/1caf7db8-08a2-4f9c-beb4-d219d66d0494.jpeg?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp",
+			linkText: "Watch Presentation",
+			link: "https://www.youtube.com/watch?v=WfxAg5kZ-TE&t=21s",
 		},
 
 		{
-			title: "Project 4",
+			title: "Run Tests Anywhere",
 			description:
-				"Lorem ipsum dolor sit amet. Et incidunt voluptatem ex tempore repellendus qui dicta nemo sit deleniti minima.",
-			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
-			linkText: "View Project",
-			link: "https://github.com",
+				"A module running in an OCI container to run unit tests for NodeJS projects consistently anywhere",
+			logo: "https://cdn.hashnode.com/res/hashnode/image/upload/v1711468826614/6bd471d2-adf8-4ad4-b9fa-0472574bed5d.webp?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp",
+			linkText: "Watch Presentation",
+			link: "https://www.youtube.com/watch?v=8PmH2uYC2PE&t=2s",
 		},
 
 		{
-			title: "Project 5",
+			title: "AdAlchemy",
 			description:
-				"Lorem ipsum dolor sit amet. Et incidunt voluptatem ex tempore repellendus qui dicta nemo sit deleniti minima.",
-			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
-			linkText: "View Project",
-			link: "https://github.com",
-		},
+				"AI Agents automating digital marketing for early stage startups",
+			logo: "https://miro.medium.com/v2/resize:fit:1000/1*97-kgkxlWHiKEKtzZR9laA.gif",
+			linkText: "Watch Presentation",
+			link: "https://www.youtube.com/watch?v=pg9MK9YbmvQ&t=11s",
+		}
+
 	],
 };
 

@@ -135,8 +135,8 @@ Directory: `/src/data/`
     	{
     		page: "home",
     		description:
-    			"I am a backend developer with expertise in Node.js. I have experience in building scalable, secure and reliable web applications using various frameworks and technologies.",
-    		keywords: ["Tharindu", "Tharindu N", "Tharindu Nayanajith"],
+    			"I am a Software Engineer with experience in Data Analysis in the marketing context. I am comfortable building robust data pipelines, training and fine tuning machine learning models to generate deeper insights, intergrate data into visually appealing frontends and explaining the output of the data.",
+    		keywords: ["Emmanuel", "Emmanuel Sibanda"],
     	},
     ];
     ```
