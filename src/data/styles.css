@@ -1,10 +1,29 @@
 :root {
-	/* ------- colors ------- */
-	--primary-color: #27272a;
-	--secondary-color: #65656d;
-	--tertiary-color: #acacb4;
-	--quaternary-color: #e4e4e7;
-	--link-color: #14b8a6;
+	/* ------- zen dark / pre-dawn ocean ------- */
+	--bg-deep: #030508;
+	--bg-surface: #080c12;
+	--bg-card: #0c1118;
+	--primary-color: #d8d4cc;
+	--secondary-color: #7a8494;
+	--tertiary-color: #4a5568;
+	--quaternary-color: #1a2030;
+	--link-color: #5a9e96;
+	--accent-warm: #a8886a;
+	--accent-sand: #8b7355;
+	--accent-ocean: #3d7a72;
+	--accent-mist: rgba(90, 158, 150, 0.08);
+	--gradient-ocean: radial-gradient(
+			ellipse 80% 60% at 50% 0%,
+			rgba(45, 80, 75, 0.18) 0%,
+			transparent 60%
+		),
+		linear-gradient(180deg, #050810 0%, #030508 45%, #020304 100%);
+	--gradient-warm-ring: linear-gradient(
+		145deg,
+		rgba(168, 136, 106, 0.6) 0%,
+		rgba(90, 158, 150, 0.4) 50%,
+		rgba(61, 122, 114, 0.5) 100%
+	);
 	/* ---------------------- */
 
 	/* ------- fonts ------- */

@@ -2,81 +2,139 @@ const INFO = {
 	main: {
 		title: "Emmanuel Sibanda",
 		name: "Emmanuel Sibanda",
-		email: "emmanuelsibandaus@gmail.com",
+		email: "emmanuel@emmanuelsibanda.com",
 		logo: "../logo.png",
 	},
 
 	socials: {
 		twitter: "https://x.com/Emmoemm",
 		github: "https://github.com/EmmS21?tab=repositories",
-		linkedin: "https://www.linkedin.com/in/emmanuel-s-42b49176/"
+		linkedin: "https://www.linkedin.com/in/emmanuel-s-42b49176/",
 	},
+
+	calendly:
+		"https://calendly.com/emmanuel-emmanuelsibanda/automation-discovery-call",
 
 	homepage: {
-		title: "Software Engineer with experience in Data Analysis in marketing contexts.",
-		description:
-			"My name is Emmanuel Sibanda, I am a Software Engineer with experience in Data Analysis in the marketing context. I am comfortable building robust data pipelines, training and fine tuning machine learning models to generate deeper insights, intergrate data into visually appealing frontends and explaining the output of the data.",
+		headline:
+			"Automation for Puerto Rico's hotels, venues, and travel agencies.",
+		subheadline:
+			"I build AI-powered workflows that handle the repetitive work: guest follow-ups, scheduling, reporting, and client communication, so your team can focus on what actually grows your business.",
+		tagline: "Emmanuel Sibanda · Automation for Hospitality & Tourism",
+
+		industries: [
+			{
+				title: "Hotels",
+				description:
+					"Guest communication, booking follow-ups, housekeeping coordination, and review responses, all handled automatically.",
+			},
+			{
+				title: "Entertainment",
+				description:
+					"Event scheduling, vendor coordination, ticket workflows, and post-event follow-ups without the manual overhead.",
+			},
+			{
+				title: "Travel Agencies",
+				description:
+					"Itinerary updates, client confirmations, supplier coordination, and booking management on autopilot.",
+			},
+		],
+
+		servicesSection: {
+			title: "What gets automated",
+			subtitle:
+				"Automation that saves you time and money. Less manual work, more time to run your business.",
+		},
+
+		services: [
+			{
+				title: "Client Relations",
+				description:
+					"Automated follow-ups, status updates, and reminders so no guest or client falls through the cracks.",
+			},
+			{
+				title: "Operations & Time Tracking",
+				description:
+					"Staff workflows, billable hours, and reporting without spreadsheets or double entry.",
+			},
+			{
+				title: "Booking & Scheduling",
+				description:
+					"Confirmations, changes, and no-shows handled automatically. Fewer calls, fewer errors.",
+			},
+			{
+				title: "Data & Reporting",
+				description:
+					"Guest, booking, and marketing data flowing to the right place, with dashboards your team actually uses.",
+			},
+		],
+
+		proof: {
+			title: "Results I've Delivered",
+			subtitle:
+				"Proof of work: real outcomes from automation I've built and shipped.",
+		},
+
+		stats: [
+			{
+				value: "6-figure",
+				label: "annual savings in billable hours",
+				detail:
+					"Built AI automation for client relations and time tracking at Blackstone, eliminating manual billable-hour logging and follow-ups across a global finance team. Six figures saved in billable hours, every year.",
+				company: {
+					name: "Blackstone",
+					logo: "logos/blackstone.svg",
+				},
+			},
+			{
+				value: "10+ hrs",
+				label: "reclaimed per week for ops teams",
+				detail:
+					"Automated drug discovery workflows at Vial, cutting repetitive ops tasks that were eating tens of hours from the team every single week.",
+				company: {
+					name: "Vial",
+					logo: "logos/vial.svg",
+				},
+			},
+			{
+				value: "Enterprise",
+				label: "grade AI built for real businesses",
+				detail:
+					"Designed and shipped enterprise-grade AI automation at Blackstone: client relations, time tracking, and internal tooling used daily by teams managing billions in assets.",
+				company: {
+					name: "Blackstone",
+					logo: "logos/blackstone.svg",
+				},
+			},
+		],
+
+		process: [
+			{
+				step: "01",
+				title: "Discovery Call",
+				description:
+					"We map where your team loses time: bookings, follow-ups, reporting, coordination.",
+			},
+			{
+				step: "02",
+				title: "Custom Plan",
+				description:
+					"A scoped automation plan built around your existing tools and workflows.",
+			},
+			{
+				step: "03",
+				title: "Build & Deploy",
+				description:
+					"I build it, you get hours back and save money.",
+			},
+		],
+
+		cta: {
+			headline: "Ready to stop losing hours to manual work?",
+			subheadline:
+				"Book a free 30-minute discovery call. No pitch deck, just a conversation about what's slowing your team down.",
+		},
 	},
-
-	about: {
-		title: "My name is Emmanuel Sibanda. I live between New York and Austin.",
-		description:
-			"My intersection of interests and skills lie between; fine tuning AI/ML models, analysing data within the marketing context, building data pipelines and buiding full stack software engineering projects.",
-	},
-
-	articles: {
-		title: "Some of the articles I have written.",
-		description:
-			"To read more of my articles here are links to my blogs. HashNode: https://emmanuelsibanda.hashnode.dev/  HackerNoon: https://hackernoon.com/u/emmanuels and Towards Data Science: https://towardsdatascience.com/i-decided-to-download-my-social-media-data-facebook-linkedin-and-twitter-with-the-intention-of-64eabf961ed1 ",
-	},
-
-	projects: [
-		{
-			title: "AIGuideCoder",
-			description:
-				"A platform to help you practice for coding interviews guided by AI.",
-			logo: "https://peerprogrammingplatform.vercel.app/static/media/thegradientboostlogo.dcd25b660df1ae3c878e.png",
-			linkText: "View Web App",
-			link: "https://peerprogrammingplatform.vercel.app/",
-		},
-
-		{
-			title: "Budgeting Buddy and Investment Optimizer",
-			description:
-				"A pipeline of containers running AI Agents to give you nuanced budgeting and investment advice",
-			logo: "https://www.recipesforwellbeing.org/wp-content/uploads/2022/03/199-Tips-for-financial-budgeting_landscape.jpg",
-			linkText: "Watch Presentation",
-			link: "https://www.youtube.com/watch?v=YxfW-TgOGkc&t=1s",
-		},
-
-		{
-			title: "AI Unit Tests",
-			description:
-				"An AI Agent writing unit tests for Typescript projects.",
-			logo: "https://cdn.hashnode.com/res/hashnode/image/upload/v1714407286364/1caf7db8-08a2-4f9c-beb4-d219d66d0494.jpeg?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp",
-			linkText: "Watch Presentation",
-			link: "https://www.youtube.com/watch?v=WfxAg5kZ-TE&t=21s",
-		},
-
-		{
-			title: "Run Tests Anywhere",
-			description:
-				"A module running in an OCI container to run unit tests for NodeJS projects consistently anywhere",
-			logo: "https://cdn.hashnode.com/res/hashnode/image/upload/v1711468826614/6bd471d2-adf8-4ad4-b9fa-0472574bed5d.webp?w=1600&h=840&fit=crop&crop=entropy&auto=compress,format&format=webp",
-			linkText: "Watch Presentation",
-			link: "https://www.youtube.com/watch?v=8PmH2uYC2PE&t=2s",
-		},
-
-		{
-			title: "AdAlchemy",
-			description:
-				"AI Agents automating digital marketing for early stage startups",
-			logo: "https://miro.medium.com/v2/resize:fit:1000/1*97-kgkxlWHiKEKtzZR9laA.gif",
-			linkText: "Watch Presentation",
-			link: "https://www.youtube.com/watch?v=pg9MK9YbmvQ&t=11s",
-		}
-
-	],
 };
 
 export default INFO;

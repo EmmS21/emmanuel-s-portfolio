@@ -5,42 +5,27 @@
 }
 
 ::-webkit-scrollbar-track {
-	background-color: #f1f1f1;
+	background-color: var(--bg-deep);
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: #383636;
+	background-color: var(--quaternary-color);
 	border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background-color: rgb(0, 0, 0);
+	background-color: var(--tertiary-color);
 }
 
 .page-content {
-	background-color: white;
+	background-color: var(--bg-deep);
 	position: relative;
+	color: var(--primary-color);
 }
 
 .page-content:before,
 .page-content:after {
-	content: "";
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	width: calc((100% - 1200px) / 2);
-	background-color: #fafafa;
-	border: 1px solid #f4f4f5;
-}
-
-.page-content:before {
-	left: 0;
-	z-index: 1;
-}
-
-.page-content:after {
-	right: 0;
-	z-index: 1;
+	display: none;
 }
 
 .content-wrapper {

@@ -1,39 +1,36 @@
 import React from "react";
-import { Link } from "react-router-dom";
+
+import INFO from "../../data/user";
 
 import "./styles/footer.css";
 
 const Footer = () => {
 	return (
-		<React.Fragment>
-			<div className="footer">
-				<div className="footer-links">
-					<ul className="footer-nav-link-list">
-						<li className="footer-nav-link-item">
-							<Link to="/">Home</Link>
-						</li>
-						<li className="footer-nav-link-item">
-							<Link to="/about">About</Link>
-						</li>
-						<li className="footer-nav-link-item">
-							<Link to="/projects">Projects</Link>
-						</li>
-						<li className="footer-nav-link-item">
-							<Link to="/articles">Articles</Link>
-						</li>
-						<li className="footer-nav-link-item">
-							<Link to="/contact">Contact</Link>
-						</li>
-					</ul>
-				</div>
+		<div className="footer">
+			<div className="footer-links">
+				<a
+					href={INFO.calendly}
+					target="_blank"
+					rel="noreferrer"
+					className="footer-link"
+				>
+					Book a Discovery Call
+				</a>
+				<a
+					href={`mailto:${INFO.main.email}`}
+					className="footer-link"
+				>
+					{INFO.main.email}
+				</a>
+			</div>
 
-				<div className="footer-credits">
-					<div className="footer-credits-text">
-						© 2024 Emmanuel Sibanda All Rights Reserved.
-					</div>
+			<div className="footer-credits">
+				<div className="footer-credits-text">
+					© 2026 {INFO.main.name}. Automation for Hospitality &
+					Tourism in Puerto Rico.
 				</div>
 			</div>
-		</React.Fragment>
+		</div>
 	);
 };
 
