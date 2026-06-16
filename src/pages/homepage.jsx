@@ -176,6 +176,7 @@ const Homepage = () => {
 										key={stat.label}
 										onClick={() => toggleStat(index)}
 										aria-expanded={isActive}
+										aria-controls="homepage-stat-panel"
 										aria-label={
 											isActive
 												? `Close details for ${stat.value}`
@@ -194,28 +195,31 @@ const Homepage = () => {
 												className="homepage-stat-plus"
 											/>
 										</span>
-
-										{isActive && (
-											<div className="homepage-stat-detail">
-												<p className="homepage-stat-detail-text">
-													{stat.detail}
-												</p>
-												<div className="homepage-stat-company">
-													<span className="homepage-stat-company-label">
-														Delivered at
-													</span>
-													<img
-														src={stat.company.logo}
-														alt={`${stat.company.name} logo`}
-														className="homepage-stat-company-logo"
-													/>
-												</div>
-											</div>
-										)}
 									</button>
 								);
 							})}
 						</div>
+
+						{activeStat !== null && (
+							<div
+								id="homepage-stat-panel"
+								className="homepage-stat-panel"
+							>
+								<p className="homepage-stat-detail-text">
+									{homepage.stats[activeStat].detail}
+								</p>
+								<div className="homepage-stat-company">
+									<span className="homepage-stat-company-label">
+										Delivered at
+									</span>
+									<img
+										src={homepage.stats[activeStat].company.logo}
+										alt={`${homepage.stats[activeStat].company.name} logo`}
+										className="homepage-stat-company-logo"
+									/>
+								</div>
+							</div>
+						)}
 						<p className="homepage-proof-note">
 							Same approach, now focused on Puerto Rico's hospitality
 							and tourism businesses.
