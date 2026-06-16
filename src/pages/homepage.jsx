@@ -35,12 +35,23 @@ const Homepage = () => {
 	return (
 		<React.Fragment>
 			<Helmet>
-				<title>{INFO.main.title} | Automation for Hospitality & Tourism</title>
+				<title>{currentSEO.title}</title>
 				<meta name="description" content={currentSEO.description} />
 				<meta
 					name="keywords"
 					content={currentSEO.keywords.join(", ")}
 				/>
+				<meta property="og:type" content="website" />
+				<meta property="og:url" content={currentSEO.url} />
+				<meta property="og:title" content={currentSEO.title} />
+				<meta property="og:description" content={currentSEO.description} />
+				<meta property="og:image" content={currentSEO.ogImage} />
+				<meta property="og:image:alt" content={currentSEO.ogImageAlt} />
+				<meta property="og:site_name" content={INFO.main.name} />
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta name="twitter:title" content={currentSEO.title} />
+				<meta name="twitter:description" content={currentSEO.description} />
+				<meta name="twitter:image" content={currentSEO.ogImage} />
 			</Helmet>
 
 			<div className="page-content homepage-page">
