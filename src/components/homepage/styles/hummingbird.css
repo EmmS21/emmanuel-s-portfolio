@@ -1,0 +1,143 @@
+@import "../../../data/styles.css";
+
+.bird {
+	--face: 1;
+	--lean-x: 0px;
+	--lean-y: 0px;
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 6.5cqw;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	z-index: 5;
+	transform: translate(-50%, -50%) translate(var(--lean-x), var(--lean-y));
+	transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.6s ease 0.8s;
+	opacity: 0;
+}
+
+.river-phase-ready .bird {
+	opacity: 1;
+}
+
+.bird-flight {
+	display: block;
+	width: 100%;
+	animation: bird-bob 2.4s ease-in-out infinite;
+}
+
+.bird-svg {
+	display: block;
+	width: 100%;
+	overflow: visible;
+	transform: scaleX(var(--face));
+	transition: transform 0.25s ease;
+	filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px rgba(143, 230, 140, 0.3));
+}
+
+.bird-wing {
+	transform-box: fill-box;
+	transform-origin: 100% 88%;
+	animation: bird-flap 0.09s ease-in-out infinite alternate;
+}
+
+.bird-wing-ghost {
+	animation-delay: -0.045s;
+	opacity: 0.3;
+}
+
+.bird-banner {
+	position: relative;
+	margin-top: 0.9cqw;
+	padding: 0.35cqw 0.9cqw;
+	font-family: var(--secondary-font);
+	font-size: 0.82cqw;
+	letter-spacing: 0.06em;
+	color: #0a1513;
+	white-space: nowrap;
+	background: linear-gradient(135deg, #d8f3ec 0%, #8fd694 100%);
+	border-radius: 999px;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+	transform-origin: 50% -1cqw;
+	animation: bird-sway 2.4s ease-in-out infinite;
+	transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.bird-banner::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: 100%;
+	width: 1px;
+	height: 0.9cqw;
+	background: rgba(216, 243, 236, 0.6);
+}
+
+.bird:hover .bird-banner,
+.bird:focus-visible .bird-banner {
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 22px rgba(143, 214, 148, 0.55);
+}
+
+.bird:focus-visible {
+	outline: none;
+}
+
+.river-tall .bird {
+	width: 16cqw;
+}
+
+.river-tall .bird-banner {
+	margin-top: 2cqw;
+	padding: 1cqw 2.6cqw;
+	font-size: 3.2cqw;
+}
+
+.river-tall .bird-banner::before {
+	height: 2cqw;
+}
+
+@keyframes bird-flap {
+	from {
+		transform: rotate(0deg) scaleY(1);
+	}
+	to {
+		transform: rotate(28deg) scale(0.92, 0.55);
+	}
+}
+
+@keyframes bird-bob {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-6px);
+	}
+}
+
+@keyframes bird-sway {
+	0%,
+	100% {
+		transform: rotate(-3deg);
+	}
+	50% {
+		transform: rotate(3deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.bird,
+	.bird-svg {
+		transition: none;
+	}
+
+	.bird-flight,
+	.bird-wing,
+	.bird-banner {
+		animation: none;
+	}
+}

@@ -1,0 +1,94 @@
+@import "../../../data/styles.css";
+
+.dock {
+	position: fixed;
+	right: 22px;
+	bottom: 22px;
+	z-index: 30;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 10px;
+	opacity: 0;
+	transform: translateY(10px);
+	pointer-events: none;
+	transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.dock-visible {
+	opacity: 1;
+	transform: none;
+	pointer-events: auto;
+}
+
+.dock-toggle {
+	min-width: 46px;
+	height: 46px;
+	padding: 0 18px;
+	font-family: var(--secondary-font);
+	font-size: 13px;
+	letter-spacing: 0.04em;
+	color: var(--primary-color);
+	background: rgba(12, 22, 26, 0.75);
+	border: 1px solid rgba(160, 220, 210, 0.22);
+	border-radius: 999px;
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+	backdrop-filter: blur(10px);
+	cursor: pointer;
+	transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dock-toggle:hover,
+.dock-toggle:focus-visible {
+	border-color: rgba(160, 220, 210, 0.5);
+	background: rgba(20, 40, 44, 0.85);
+	outline: none;
+}
+
+.dock-menu {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	pointer-events: none;
+}
+
+.dock-open .dock-menu {
+	pointer-events: auto;
+}
+
+.dock-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	font-size: 13px;
+	color: var(--primary-color);
+	text-decoration: none;
+	background: rgba(12, 22, 26, 0.8);
+	border: 1px solid rgba(160, 220, 210, 0.16);
+	border-radius: 999px;
+	backdrop-filter: blur(10px);
+	opacity: 0;
+	transform: translateY(8px) scale(0.96);
+	transition:
+		opacity 0.25s ease,
+		transform 0.3s cubic-bezier(0.2, 1.2, 0.4, 1),
+		border-color 0.2s ease;
+}
+
+.dock-open .dock-link {
+	opacity: 1;
+	transform: none;
+	transition-delay: calc((3 - var(--i)) * 40ms);
+}
+
+.dock-link:hover,
+.dock-link:focus-visible {
+	border-color: rgba(226, 184, 120, 0.5);
+	outline: none;
+}
+
+.dock-link-icon {
+	color: var(--link-color);
+}

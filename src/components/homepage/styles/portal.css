@@ -1,0 +1,349 @@
+@import "../../../data/styles.css";
+
+.homepage-photo-sanctuary {
+	position: relative;
+	width: 320px;
+	height: 320px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.zen-enso {
+	position: absolute;
+	width: 290px;
+	height: 290px;
+	border: 2px solid transparent;
+	border-top-color: rgba(90, 158, 150, 0.25);
+	border-right-color: rgba(168, 136, 106, 0.15);
+	border-radius: 50%;
+	transform: rotate(-35deg);
+	animation: zen-enso-drift 12s ease-in-out infinite;
+	pointer-events: none;
+}
+
+.zen-enso::after {
+	content: "";
+	position: absolute;
+	inset: 12px;
+	border: 1px solid transparent;
+	border-bottom-color: rgba(90, 158, 150, 0.12);
+	border-left-color: rgba(168, 136, 106, 0.08);
+	border-radius: 50%;
+	transform: rotate(15deg);
+}
+
+.zen-ripples {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.zen-ripple {
+	position: absolute;
+	width: 220px;
+	height: 220px;
+	border: 1px solid rgba(90, 158, 150, 0.12);
+	border-radius: 50%;
+	animation: zen-ripple 6s ease-out infinite;
+}
+
+.zen-ripple:nth-child(2) {
+	animation-delay: 2s;
+}
+
+.zen-ripple:nth-child(3) {
+	animation-delay: 4s;
+}
+
+.zen-orbs {
+	position: absolute;
+	inset: -20px;
+	pointer-events: none;
+}
+
+.zen-orb {
+	position: absolute;
+	border-radius: 50%;
+	background: radial-gradient(
+		circle,
+		rgba(90, 158, 150, 0.15) 0%,
+		transparent 70%
+	);
+	filter: blur(20px);
+	animation: zen-float 10s ease-in-out infinite;
+}
+
+.zen-orb:nth-child(1) {
+	width: 80px;
+	height: 80px;
+	top: 10%;
+	left: -5%;
+	animation-delay: 0s;
+}
+
+.zen-orb:nth-child(2) {
+	width: 60px;
+	height: 60px;
+	bottom: 15%;
+	right: -8%;
+	background: radial-gradient(
+		circle,
+		rgba(168, 136, 106, 0.12) 0%,
+		transparent 70%
+	);
+	animation-delay: 3s;
+}
+
+.zen-orb:nth-child(3) {
+	width: 40px;
+	height: 40px;
+	top: 20%;
+	right: 5%;
+	animation-delay: 6s;
+}
+
+.zen-mist {
+	position: absolute;
+	width: 120px;
+	height: 200px;
+	background: linear-gradient(
+		180deg,
+		transparent 0%,
+		rgba(90, 158, 150, 0.04) 50%,
+		transparent 100%
+	);
+	filter: blur(24px);
+	pointer-events: none;
+	animation: zen-mist-drift 14s ease-in-out infinite;
+}
+
+.zen-mist-left {
+	left: -40px;
+	bottom: 20%;
+}
+
+.zen-mist-right {
+	right: -40px;
+	bottom: 30%;
+	animation-delay: 7s;
+}
+
+.homepage-photo-frame {
+	position: relative;
+	z-index: 2;
+}
+
+.homepage-photo-glow {
+	position: absolute;
+	inset: -30px;
+	background: radial-gradient(
+		circle,
+		rgba(90, 158, 150, 0.2) 0%,
+		rgba(61, 122, 114, 0.06) 40%,
+		transparent 70%
+	);
+	border-radius: 50%;
+	animation: zen-breathe 6s ease-in-out infinite;
+	pointer-events: none;
+}
+
+.homepage-photo-ring {
+	position: relative;
+	width: 220px;
+	height: 220px;
+	border-radius: 50%;
+	padding: 3px;
+	background: var(--gradient-warm-ring);
+	box-shadow:
+		0 0 60px rgba(61, 122, 114, 0.15),
+		0 0 120px rgba(90, 158, 150, 0.06),
+		inset 0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+.homepage-photo {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	object-fit: cover;
+	object-position: center 20%;
+	display: block;
+	border: 4px solid var(--bg-deep);
+	filter: contrast(1.02) brightness(0.95);
+}
+
+@keyframes zen-breathe {
+	0%,
+	100% {
+		opacity: 0.7;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.04);
+	}
+}
+
+@keyframes zen-ripple {
+	0% {
+		transform: scale(0.85);
+		opacity: 0.5;
+	}
+	100% {
+		transform: scale(1.6);
+		opacity: 0;
+	}
+}
+
+@keyframes zen-enso-drift {
+	0%,
+	100% {
+		transform: rotate(-35deg);
+		opacity: 0.6;
+	}
+	50% {
+		transform: rotate(-30deg);
+		opacity: 0.9;
+	}
+}
+
+@keyframes zen-float {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	33% {
+		transform: translate(8px, -12px);
+	}
+	66% {
+		transform: translate(-6px, 8px);
+	}
+}
+
+@keyframes zen-mist-drift {
+	0%,
+	100% {
+		opacity: 0.4;
+		transform: translateX(0);
+	}
+	50% {
+		opacity: 0.7;
+		transform: translateX(15px);
+	}
+}
+
+/* ---- Cursor: tilt and depth from --px / --py (-1..1) ---- */
+
+.homepage-photo-sanctuary {
+	--px: 0;
+	--py: 0;
+	--hover: 0;
+	--follow: 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.homepage-photo-frame {
+	transform: perspective(700px) rotateX(calc(var(--py) * -12deg))
+		rotateY(calc(var(--px) * 12deg));
+	transition: transform var(--follow);
+}
+
+.homepage-photo-ring {
+	overflow: hidden;
+}
+
+.homepage-photo-ring::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background: radial-gradient(
+		circle at calc(50% + var(--px) * 35%) calc(50% + var(--py) * 35%),
+		rgba(255, 240, 220, 0.22) 0%,
+		transparent 45%
+	);
+	mix-blend-mode: screen;
+	opacity: var(--hover);
+	transition: opacity var(--follow);
+	pointer-events: none;
+}
+
+.homepage-photo {
+	transform: translate(calc(var(--px) * -8px), calc(var(--py) * -8px))
+		scale(calc(1 + var(--hover) * 0.08));
+	transition: transform var(--follow);
+}
+
+.homepage-photo-glow {
+	translate: calc(var(--px) * 12px) calc(var(--py) * 12px);
+	transition: translate var(--follow);
+}
+
+.zen-enso {
+	translate: calc(var(--px) * 10px) calc(var(--py) * 10px);
+	transition: translate var(--follow);
+}
+
+.zen-ripples {
+	translate: calc(var(--px) * 6px) calc(var(--py) * 6px);
+	transition: translate var(--follow);
+}
+
+.zen-orbs {
+	translate: calc(var(--px) * 20px) calc(var(--py) * 20px);
+	transition: translate 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.zen-mist {
+	translate: calc(var(--px) * -14px) calc(var(--py) * -14px);
+	transition: translate 0.8s ease-out;
+}
+
+.homepage-photo-sanctuary {
+	cursor: pointer;
+}
+
+.homepage-photo-ring {
+	scale: 1;
+	transition: scale 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.homepage-photo-ring.is-charging {
+	scale: 0.92;
+	transition: scale 1.5s cubic-bezier(0.1, 0.6, 0.3, 1);
+}
+
+.portal-hit {
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	margin: -15px 0 0 -15px;
+	border-radius: 50%;
+	border: 2px solid rgba(255, 240, 220, 0.7);
+	box-shadow: 0 0 18px rgba(127, 209, 196, 0.5);
+	pointer-events: none;
+	animation: portal-hit 0.7s ease-out forwards;
+}
+
+@keyframes portal-hit {
+	from {
+		transform: scale(0.2);
+		opacity: 1;
+	}
+	to {
+		transform: scale(var(--reach, 5));
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.zen-enso,
+	.zen-ripple,
+	.zen-orb,
+	.zen-mist,
+	.homepage-photo-glow {
+		animation: none;
+	}
+}

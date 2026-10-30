@@ -16,124 +16,321 @@ const INFO = {
 		"https://calendly.com/emmanuel-emmanuelsibanda/automation-discovery-call",
 
 	homepage: {
-		headline:
-			"Automation for Puerto Rico's hotels, venues, and travel agencies.",
-		subheadline:
-			"I build AI-powered workflows that handle the repetitive work: guest follow-ups, scheduling, reporting, and client communication, so your team can focus on what actually grows your business.",
-		tagline: "Emmanuel Sibanda · Automation for Hospitality & Tourism",
+		tagline: "Emmanuel Sibanda",
+		pitch: "I understand business problems and the users behind them, then build software and automation that grow revenue and cut costs.",
+		proof: [
+			"Six figures in billable hours saved at Blackstone",
+			"10+ hours a week back at Vial",
+			"9 fixes merged upstream in open source",
+		],
 
-		industries: [
+		skills: [
 			{
-				title: "Hotels",
-				description:
-					"Guest communication, booking follow-ups, housekeeping coordination, and review responses, all handled automatically.",
+				id: "product",
+				label: "Product Engineering",
+				color: "#e2b878",
+				summary:
+					"Turning a business problem into a product people use: find where the work breaks, design the system, ship it.",
+				tools: ["Discovery", "System design", "React", "TypeScript", "Electron"],
+				work: [
+					{ project: "blackstone", did: "Turned call transcripts into structured portfolio intelligence for consulting and investment teams, saving six figures in billable hours." },
+					{ project: "vial", did: "Turned unstructured clinical-trial PDFs into validated data that stakeholder reports could rely on." },
+					{ project: "fundaai", did: "Designed exam prep that works with or without internet, from the app store to the tutors." },
+					{ project: "adalchemy", did: "Gave small businesses a marketing function, run from a Discord bot, with the owner approving every ad." },
+					{ project: "pair", did: "Built practice for the part interviews test: explaining your logic to another person." },
+				],
 			},
 			{
-				title: "Entertainment",
-				description:
-					"Event scheduling, vendor coordination, ticket workflows, and post-event follow-ups without the manual overhead.",
+				id: "ai",
+				label: "AI Engineering",
+				color: "#7fd1c4",
+				summary:
+					"Agents and models placed where they work best: a small model on the device, a larger one in the cloud.",
+				tools: ["LLM agents", "RAG", "llama.cpp", "Groq", "Local + cloud inference"],
+				work: [
+					{ project: "fundaai", did: "A small local model marks answers offline. Online, a larger model writes the full report. A RAG pipeline keeps the curriculum searchable offline." },
+					{ project: "adalchemy", did: "An agent researches each customer type, then writes keywords and ad variations." },
+					{ project: "blackstone", did: "AI workflows that extract, classify and normalize the issues raised in call transcripts." },
+					{ project: "daggerverse", did: "AI sorts bank spending into categories and writes budgeting advice." },
+				],
 			},
 			{
-				title: "Travel Agencies",
-				description:
-					"Itinerary updates, client confirmations, supplier coordination, and booking management on autopilot.",
+				id: "backend",
+				label: "Backend Engineering",
+				color: "#6fb6e8",
+				summary:
+					"APIs, services and storage that keep working when the network does not.",
+				tools: ["FastAPI", "Go", "Django", "PostgreSQL", "MongoDB", "Redis"],
+				work: [
+					{ project: "blackstone", did: "FastAPI endpoints, relational schemas and role-based access control for sensitive portfolio data." },
+					{ project: "fundaai", did: "FastAPI and Go services: the store, device auth middleware, automatic updates, the local cache and the offline queue." },
+					{ project: "pair", did: "Django backend with a Redis waiting room that matches two people, voice calls and live shared code." },
+				],
+			},
+			{
+				id: "data",
+				label: "Data Engineering",
+				color: "#8fd694",
+				summary:
+					"Pipelines that run the same on a laptop, in CI and in the cloud, and data that arrives complete.",
+				tools: ["Dagger", "AWS Lambda", "Snowflake", "RDS", "SQS", "MongoDB"],
+				work: [
+					{ project: "blackstone", did: "Snowflake-to-RDS migration pipelines on AWS Lambda, with paginated transfers and dependency-aware table order." },
+					{ project: "vial", did: "Document extraction pipeline: PDF parsing, fields extracted against fixed schemas, validation before API handoff." },
+					{ project: "daggerverse", did: "Reusable pipeline modules: bank data in, categories and advice out by SMS. Swap a few blocks and it writes unit tests." },
+					{ project: "adalchemy", did: "Each business joins an SQS queue, research runs in AWS Lambda, results land in MongoDB." },
+					{ project: "fundaai", did: "On a Modal schedule, curriculum PDFs from Google Drive are chunked into compressed embeddings, and the cache pulls new questions for offline study." },
+				],
+			},
+			{
+				id: "forward",
+				label: "Forward Deployed Engineering",
+				color: "#c9a0e8",
+				summary:
+					"Going into someone else's system, finding where real users get stuck, proving the cause, and shipping the fix.",
+				tools: ["Issue mapping", "Repro tests", "C++", "Go", "Python", "TypeScript"],
+				work: [
+					{ project: "opensource", did: "Nine merged pull requests across GizmoSQL, GrowthBook, Dagger, OpenFn and Koza." },
+				],
 			},
 		],
 
-		servicesSection: {
-			title: "What gets automated",
-			subtitle:
-				"Automation that saves you time and money. Less manual work, more time to run your business.",
-		},
-
-		services: [
+		history: [
 			{
-				title: "Client Relations",
-				description:
-					"Automated follow-ups, status updates, and reminders so no guest or client falls through the cracks.",
+				org: "Blackstone",
+				role: "Software Engineer",
+				place: "New York",
+				dates: "Oct 2024 – Apr 2026",
+				summary:
+					"AI workflows that turn call transcripts into portfolio intelligence, a Snowflake-to-RDS migration on AWS Lambda, and standard CI/CD across repositories.",
+				project: "blackstone",
 			},
 			{
-				title: "Operations & Time Tracking",
-				description:
-					"Staff workflows, billable hours, and reporting without spreadsheets or double entry.",
+				org: "Vial",
+				role: "Full Stack Engineer",
+				place: "San Francisco, remote",
+				dates: "Jan 2023 – Dec 2023",
+				summary:
+					"A pipeline that turns clinical-trial PDFs into schema-validated JSON for stakeholder reports.",
+				project: "vial",
 			},
 			{
-				title: "Booking & Scheduling",
-				description:
-					"Confirmations, changes, and no-shows handled automatically. Fewer calls, fewer errors.",
+				org: "The Gradient Boost",
+				role: "Founder and Engineer",
+				place: "New York",
+				dates: "Jan 2020 – Dec 2022",
+				summary:
+					"Raised $50,000 and hired 5 remote software and data engineers. Built the React and Django learner dashboard that showed hiring partners who was ready for analyst roles.",
+				skills: ["product", "backend"],
 			},
 			{
-				title: "Data & Reporting",
-				description:
-					"Guest, booking, and marketing data flowing to the right place, with dashboards your team actually uses.",
-			},
-		],
-
-		proof: {
-			title: "Results I've Delivered",
-			subtitle:
-				"Proof of work: real outcomes from automation I've built and shipped.",
-		},
-
-		stats: [
-			{
-				value: "6-figure",
-				label: "annual savings in billable hours",
-				detail:
-					"Built AI automation for client relations and time tracking at Blackstone, eliminating manual billable-hour logging and follow-ups across a global finance team. Six figures saved in billable hours, every year.",
-				company: {
-					name: "Blackstone",
-					logo: "logos/blackstone.svg",
-				},
+				org: "Yoco",
+				role: "Data Analyst and Engineer",
+				place: "Cape Town, South Africa",
+				dates: "Jan 2019 – Dec 2019",
+				summary:
+					"Python and SQL across NoSQL and PostgreSQL, building the dashboards sales and marketing used to measure performance.",
+				skills: ["data"],
 			},
 			{
-				value: "10+ hrs",
-				label: "reclaimed per week for ops teams",
-				detail:
-					"Automated drug discovery workflows at Vial, cutting repetitive ops tasks that were eating tens of hours from the team every single week.",
-				company: {
-					name: "Vial",
-					logo: "logos/vial.svg",
-				},
+				org: "Google",
+				role: "Data Analyst Intern",
+				dates: "2017",
+				skills: ["data"],
 			},
 			{
-				value: "Enterprise",
-				label: "grade AI built for real businesses",
-				detail:
-					"Designed and shipped enterprise-grade AI automation at Blackstone: client relations, time tracking, and internal tooling used daily by teams managing billions in assets.",
-				company: {
-					name: "Blackstone",
-					logo: "logos/blackstone.svg",
-				},
+				org: "University of KwaZulu-Natal",
+				role: "Bachelor of Laws",
+				place: "South Africa",
+				skills: [],
 			},
 		],
 
-		process: [
+		projects: [
 			{
-				step: "01",
-				title: "Discovery Call",
-				description:
-					"We map where your team loses time: bookings, follow-ups, reporting, coordination.",
+				id: "blackstone",
+				title: "Blackstone",
+				industry: "Finance",
+				spring: "Portfolio insight stuck in call transcripts",
+				logo: "logos/blackstone.svg",
+				problem:
+					"Consulting and investment teams pulled portfolio insight out of call transcripts by hand, into fragmented systems.",
+				system: [
+					"Call transcripts come in",
+					"AI workflows extract and classify the issues",
+					"The data is normalized into relational schemas",
+					"Role-based access decides who sees what",
+					"Teams get structured portfolio intelligence",
+				],
+				metric: "6-figure",
+				value: "Six figures in estimated billable-hour savings, with consultants spending their time on decisions instead of data entry.",
 			},
 			{
-				step: "02",
-				title: "Custom Plan",
-				description:
-					"A scoped automation plan built around your existing tools and workflows.",
+				id: "vial",
+				title: "Vial",
+				industry: "Biotech",
+				spring: "Clinical-trial data locked in PDFs",
+				logo: "logos/vial.svg",
+				problem:
+					"Clinical-trial results arrived as unstructured PDFs, but external stakeholder reports needed clean, structured data.",
+				system: [
+					"Clinical-trial PDFs come in",
+					"Each document is parsed",
+					"Fields are extracted against a fixed schema",
+					"The result is validated before handoff",
+					"Clean JSON goes to the reporting API",
+				],
+				metric: "PDF to JSON",
+				value: "Unstructured trial documents became validated data that stakeholder reports could rely on.",
 			},
 			{
-				step: "03",
-				title: "Build & Deploy",
-				description:
-					"I build it, you get hours back and save money.",
+				id: "fundaai",
+				title: "FundaAI",
+				industry: "Education",
+				spring: "No internet at exam time",
+				problem:
+					"Students across Africa prepare for Grade 7, O Level and A Level exams, often with patchy internet.",
+				system: [
+					"The store keeps tutors installed and updated",
+					"While online, the cache pulls new questions for each subject",
+					"A small model on the laptop marks answers instantly",
+					"While offline, work waits in a queue",
+					"Back online, a larger model writes the deeper report",
+				],
+				metric: "Online or off",
+				value: "The same exam prep with or without internet. First student: my 12-year-old nephew in Zimbabwe, mentored weekly.",
+				links: [
+					{ label: "View the code", url: "https://github.com/EmmS21/fundAI" },
+				],
+			},
+			{
+				id: "daggerverse",
+				title: "Daggerverse",
+				industry: "Developer tools",
+				spring: "Works on my machine",
+				problem:
+					"Pipelines get rebuilt from scratch for every project, and run differently on every machine.",
+				system: [
+					"Bank transactions come in",
+					"AI sorts the spending into categories",
+					"The results are stored",
+					"AI writes budgeting advice",
+					"The advice goes out by SMS",
+				],
+				metric: "Build once",
+				value: "Each step is a reusable module that gives the same result on a laptop, in CI or in the cloud. Swap a few blocks and the same pipeline writes unit tests.",
+				links: [
+					{ label: "View the modules", url: "https://github.com/EmmS21/daggerverse" },
+				],
+			},
+			{
+				id: "opensource",
+				title: "Open source",
+				industry: "Data and dev tools",
+				spring: "Users stuck, cause unknown",
+				problem:
+					"Maintainers hear where users get stuck, but not why.",
+				system: [
+					"Map the product from its issues, by the step that breaks",
+					"Find the real user's moment in issues and Slack threads",
+					"Prove the cause with a test before changing code",
+					"Fix it upstream",
+				],
+				metric: "9 merged",
+				value: "Nine pull requests merged in 2026, each one starting where a real user got stuck.",
+				details: [
+					{
+						label: "GizmoSQL · max sessions",
+						text: "A full server now refuses new clients with a clear retry error instead of falling over.",
+						url: "https://github.com/gizmodata/gizmosql/pull/185",
+					},
+					{
+						label: "GizmoSQL · idle timeout",
+						text: "Quiet connections free their seat, but never while someone is still downloading results.",
+						url: "https://github.com/gizmodata/gizmosql/pull/186",
+					},
+					{
+						label: "GizmoSQL · memory limit",
+						text: "Tests prove the memory limit reaches DuckDB, and unsafe values stop the server from starting.",
+						url: "https://github.com/gizmodata/gizmosql/pull/187",
+					},
+					{
+						label: "GizmoSQL · secrets",
+						text: "On a shared server, no client can print the stored passwords.",
+						url: "https://github.com/gizmodata/gizmosql/pull/193",
+					},
+					{
+						label: "GrowthBook · experiments",
+						text: "Traced three Slack threads to one misunderstanding about when a user enters an experiment.",
+						url: "https://github.com/growthbook/growthbook/pull/6598",
+					},
+					{
+						label: "GrowthBook · refresh",
+						text: "Reproduced it with a fake server: backgroundSync does not refresh features.",
+						url: "https://github.com/growthbook/growthbook/pull/6599",
+					},
+					{
+						label: "Dagger · blocked networks",
+						text: "Pointed the proxy at a dead address to find which settings reach the code.",
+						url: "https://github.com/dagger/dagger/pull/13797",
+					},
+					{
+						label: "OpenFn · health data",
+						text: "Health record errors now come back as data integrations can read.",
+						url: "https://github.com/OpenFn/adaptors/pull/1736",
+					},
+					{
+						label: "Koza · biomedical data",
+						text: "An import that silently dropped 47% of records now stops and says so.",
+						url: "https://github.com/monarch-initiative/koza/pull/242",
+					},
+				],
+				links: [
+					{ label: "GizmoSQL map", url: "https://emms21.github.io/gizmosql-universe/gizmoSQL/" },
+					{ label: "GrowthBook map", url: "https://emms21.github.io/united-universes/" },
+					{ label: "Dagger map", url: "https://emms21.github.io/dagger-universe/" },
+				],
+			},
+			{
+				id: "pair",
+				title: "Pair programming",
+				industry: "Education",
+				spring: "Practicing interviews alone",
+				problem:
+					"People preparing for interviews practiced alone, and never explained their thinking out loud.",
+				system: [
+					"A waiting room matches two people",
+					"A voice call starts",
+					"The driver picks a difficulty, from 2,000 challenges",
+					"The driver types; the observer sees the code appear",
+				],
+				metric: "Live",
+				value: "Practice for the part interviews actually test: explaining your logic to another person.",
+				links: [
+					{ label: "Open the app", url: "https://peerprogrammingplatform.vercel.app/" },
+				],
+			},
+			{
+				id: "adalchemy",
+				title: "AdAlchemy",
+				industry: "Marketing",
+				spring: "No marketing team",
+				problem: "Small businesses can't afford a marketing team.",
+				system: [
+					"The owner onboards through a Discord bot",
+					"Each business joins a queue",
+					"An AI agent researches each customer type",
+					"It writes keywords and ad variations",
+					"The owner approves, then it connects to Google Ads",
+				],
+				metric: "Owner in control",
+				value: "A marketing function for a business that never had one, with the owner making the final call.",
+				links: [
+					{ label: "View the code", url: "https://github.com/EmmS21/AdAlchemyAILambdaFuncs" },
+					{ label: "Watch the demo", url: "https://www.youtube.com/watch?v=pg9MK9YbmvQ" },
+				],
 			},
 		],
-
-		cta: {
-			headline: "Ready to stop losing hours to manual work?",
-			subheadline:
-				"Book a free 30-minute discovery call. No pitch deck, just a conversation about what's slowing your team down.",
-		},
 	},
 };
 

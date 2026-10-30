@@ -3,18 +3,20 @@ const SITE_URL = "https://emmanuelsibanda.com";
 const SEO = [
 	{
 		page: "home",
-		title: "Emmanuel Sibanda | Automation for Hospitality & Tourism",
+		title: "Emmanuel Sibanda | From business problems to working systems",
 		description:
-			"Emmanuel Sibanda builds AI-powered automation for hotels, entertainment venues, and travel agencies in Puerto Rico. Guest follow-ups, scheduling, reporting, and client communication, automated so your team gets hours back every week.",
+			"Emmanuel Sibanda finds where the work actually breaks, then builds the system that fixes it: AI automation at Blackstone and Vial, an offline AI school for African students, reusable Dagger pipelines, AI marketing agents, and merged fixes to GizmoSQL, GrowthBook, Dagger, OpenFn and Koza.",
 		ogImage: `${SITE_URL}/homepage.jpg`,
 		ogImageAlt: "Emmanuel Sibanda",
 		url: SITE_URL,
 		keywords: [
 			"Emmanuel Sibanda",
-			"automation Puerto Rico",
-			"hospitality automation",
-			"hotel automation",
-			"travel agency automation",
+			"AI engineer",
+			"automation",
+			"AI agents",
+			"data pipelines",
+			"offline AI",
+			"open source",
 		],
 	},
 ];
