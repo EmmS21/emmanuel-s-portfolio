@@ -8,7 +8,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 6.5cqw;
+	width: 8cqw;
 	padding: 0;
 	margin: 0;
 	background: none;
@@ -37,13 +37,13 @@
 
 .bird-wing {
 	transform-box: fill-box;
-	transform-origin: 100% 88%;
-	animation: bird-flap 0.09s ease-in-out infinite alternate;
+	transform-origin: 96% 78%;
+	animation: bird-flap 0.08s ease-in-out infinite alternate;
 }
 
 .bird-wing-ghost {
-	animation-delay: -0.045s;
-	opacity: 0.3;
+	animation-delay: -0.04s;
+	opacity: 0.28;
 }
 
 .bird-banner {
@@ -83,7 +83,7 @@
 }
 
 .river-tall .bird {
-	width: 16cqw;
+	width: 20cqw;
 }
 
 .river-tall .bird-banner {
@@ -98,10 +98,10 @@
 
 @keyframes bird-flap {
 	from {
-		transform: rotate(0deg) scaleY(1);
+		transform: rotate(-6deg) scaleY(1);
 	}
 	to {
-		transform: rotate(28deg) scale(0.92, 0.55);
+		transform: rotate(34deg) scale(0.9, 0.48);
 	}
 }
 

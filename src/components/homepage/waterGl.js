@@ -530,7 +530,6 @@ vec3 weathered(vec3 c, float amount) {
 }
 
 void ripples(float d, inout vec4 acc);
-void dockSeal(vec2 p, vec2 b, float seed, inout vec4 acc);
 
 void post(vec2 q, float seed, inout vec4 acc) {
 	float r = length(q);
@@ -624,7 +623,6 @@ void dock(vec2 p, float seed, inout vec4 acc) {
 		at += vec2(hash(vec2(f, seed)) - 0.5, hash(vec2(f, seed + 3.0)) - 0.5) * 8.0;
 		post((q - at) * 1.35, seed + f * 9.0, acc);
 	}
-	dockSeal(q, b, seed, acc);
 }
 
 // Swings a moored craft on its rope, which is tied at the dock edge.
@@ -736,75 +734,7 @@ float seaHeight(vec2 p) {
 	return swell(p) + rings(u_portal + p) * 1.75 + hull;
 }
 
-void sealBody(vec2 d, float face, float up, inout vec4 acc) {
-	if (up <= 0.0) return;
-	vec2 q = vec2(cos(face) * d.x + sin(face) * d.y, -sin(face) * d.x + cos(face) * d.y) / (1.3 * mix(0.6, 1.0, up));
-	float head = length(q / vec2(4.6, 5.4));
-	float back = length((q - vec2(0.0, -8.5)) / vec2(5.6, 6.8));
-	float body = min(head, back);
-	over(acc, vec3(0.0), (1.0 - smoothstep(0.8, 1.7, body)) * 0.3 * up);
-	over(acc, vec3(0.82, 0.92, 0.9), (1.0 - smoothstep(0.0, 0.22, abs(body - 1.06))) * 0.5 * up);
-	vec3 fur = vec3(0.24, 0.22, 0.2);
-	float domeB = sqrt(max(1.0 - back * back, 0.0));
-	over(acc, fur * (0.4 + 0.5 * domeB), (1.0 - smoothstep(0.9, 1.0, back)) * up * 0.8);
-	float domeH = sqrt(max(1.0 - head * head, 0.0));
-	vec3 c2 = fur * (0.5 + 0.7 * domeH) + vec3(0.9) * pow(domeH, 10.0) * 0.18;
-	c2 = mix(c2, vec3(0.38, 0.35, 0.31), 1.0 - smoothstep(0.85, 1.0, length((q - vec2(0.0, 4.0)) / vec2(2.6, 1.9))));
-	float eyes = min(length(q - vec2(1.9, 1.5)), length(q - vec2(-1.9, 1.5)));
-	c2 = mix(c2, vec3(0.02), 1.0 - smoothstep(0.55, 0.85, eyes));
-	c2 = mix(c2, vec3(0.03), 1.0 - smoothstep(0.45, 0.7, length(q - vec2(0.0, 5.5))));
-	over(acc, c2, (1.0 - smoothstep(0.9, 1.0, head)) * up);
-}
-
-// Harbor seals haul out on the water-side planks, or surface just off the dock.
-void dockSeal(vec2 p, vec2 b, float seed, inout vec4 acc) {
-	float t = u_time / mix(16.0, 26.0, hash(vec2(seed, 1.2)));
-	float cycle = floor(t);
-	if (hash(vec2(cycle, seed + 2.0)) < 0.58) return;
-	float ph = fract(t);
-	float stay = smoothstep(0.05, 0.14, ph) * (1.0 - smoothstep(0.78, 0.94, ph));
-	if (stay <= 0.0) return;
-	float haul = step(0.4, hash(vec2(cycle, seed + 4.0)));
-	vec2 c = vec2(
-		(hash(vec2(cycle, seed + 5.0)) - 0.5) * b.x * 1.35,
-		mix(-b.y - 12.0, -b.y + 9.0, haul)
-	);
-	vec2 d = p - c;
-	if (length(d) > 42.0) return;
-	if (haul < 0.5) {
-		float dist = length(d);
-		float r1 = (ph - 0.08) * 70.0;
-		over(acc, vec3(0.82, 0.92, 0.9), exp(-pow(dist - r1, 2.0) / 6.0) * stay * 0.3);
-	}
-	float face = mix(-0.5, 0.5, hash(vec2(cycle, seed + 6.0))) + 3.1416 * haul;
-	sealBody(d, face, stay, acc);
-}
-
-// Up to three seals surface at random spots, look around, then dive.
-void seals(vec2 p, float inner, float outer, inout vec4 acc) {
-	for (int k = 0; k < 3; k++) {
-		float f = float(k);
-		float t = u_time / (11.0 + 5.0 * f) + f * 0.37;
-		float cycle = floor(t);
-		float ph = fract(t);
-		if (hash(vec2(cycle, f + 3.0)) < 0.35) continue;
-		float ang = hash(vec2(cycle, f + 7.0)) * 6.2832;
-		vec2 c = vec2(cos(ang), sin(ang)) * mix(inner + 22.0, outer * 0.8, hash(vec2(cycle, f + 11.0)));
-		vec2 d = p - c;
-		float dist = length(d);
-		if (dist > 60.0) continue;
-		float r1 = (ph - 0.08) * 90.0;
-		float r2 = (ph - 0.5) * 90.0;
-		float ring = exp(-pow(dist - r1, 2.0) / 6.0) * step(0.08, ph) * (1.0 - smoothstep(0.08, 0.5, ph));
-		ring += exp(-pow(dist - r2, 2.0) / 6.0) * step(0.5, ph) * (1.0 - smoothstep(0.5, 0.9, ph));
-		over(acc, vec3(0.82, 0.92, 0.9), ring * 0.35);
-		float up = smoothstep(0.08, 0.16, ph) * (1.0 - smoothstep(0.46, 0.54, ph));
-		float face = ang + 1.57 + (hash(vec2(cycle, f + 13.0)) - 0.5) * 2.0 + sin(u_time * 1.3 + f) * 0.5;
-		sealBody(d, face, up, acc);
-	}
-}
-
-// A small sea around the portrait: swell, surf on the coast and at the portrait, seals.
+// A small sea around the portrait: swell, surf on the coast and at the portrait.
 void sea(vec2 p, float seed, inout vec4 acc) {
 	float outer = v_size.x * 0.5;
 	float inner = v_shape.w;
@@ -838,7 +768,6 @@ void sea(vec2 p, float seed, inout vec4 acc) {
 	vec3 sand = mix(vec3(0.05, 0.047, 0.035), vec3(0.09, 0.08, 0.06), noise(p * 0.3));
 	over(acc, sand * 0.8, (1.0 - smoothstep(1.0, 1.28, e)) * 0.75);
 	over(acc, col, 1.0 - smoothstep(0.99 + surge, 1.02 + surge, e));
-	seals(p, inner, coast, acc);
 }
 
 void main() {
