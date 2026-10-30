@@ -39,6 +39,7 @@
 	max-height: none;
 	overflow: visible;
 	padding-bottom: 0;
+	background: var(--gradient-ocean);
 }
 
 .river-tall .river-frame {

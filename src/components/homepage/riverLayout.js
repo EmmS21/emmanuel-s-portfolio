@@ -82,39 +82,35 @@ const wide = (count) => {
 
 const tall = (count) => {
 	const W = 400;
-	// First dock sits near the bottom of a phone screen; each next dock is
-	// about one more screen down, so scrolling keeps showing a river and a skill.
-	const first = 780;
-	const step = 700;
-	const after = 160;
-	const H = first + (count - 1) * step + after;
-	const portal = { x: 200, y: 230, size: 0.7 };
+	const top = 440;
+	const step = 200;
+	const H = top + (count - 1) * step + 280;
+	const portal = { x: 200, y: 190, size: 0.62 };
 	const oceanY = H + 80;
-	const trunkX = (y) => 200 + 95 * Math.cos((Math.PI * (y - first)) / step);
+	const trunkX = (y) => 200 + 95 * Math.cos((Math.PI * (y - top)) / step);
 
-	const branchY = (i) => first + i * step - 90;
-	const trunkEnd = branchY(count - 1) + 30;
+	const branchY = (i) => top + i * step - 80;
 	const trunk = river({
 		path: (t) => {
-			const y = 360 + t * (trunkEnd - 360);
+			const y = 320 + t * (H + 160 - 320);
 			return { x: trunkX(y), y };
 		},
-		width: (t) => 34 + 12 * t,
+		width: (t) => 34 + 16 * t,
 		skill: -1,
 	});
 
 	const labels = [];
 	const tributaries = Array.from({ length: count }, (_, i) => {
-		const y = first + i * step;
+		const y = top + i * step;
 		const left = i % 2 === 0;
-		const lx = left ? 118 : 282;
+		const lx = left ? 130 : 270;
 		labels.push({ x: lx, y, side: left ? "left" : "right" });
 		const by = branchY(i);
 		return river({
 			path: curve(
 				{ x: trunkX(by), y: by },
-				{ x: trunkX(by) + (left ? -36 : 36), y: by + 40 },
-				{ x: lx, y: y - 70 },
+				{ x: trunkX(by) + (left ? -30 : 30), y: by + 30 },
+				{ x: lx, y: y - 50 },
 				{ x: lx, y }
 			),
 			width: (t) => 22 + 12 * t,
