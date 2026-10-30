@@ -147,20 +147,83 @@ uniform vec2 u_view;
 uniform vec2 u_px;
 uniform vec2 u_portal;
 uniform float u_ocean;
+
+float cap(vec2 p, vec2 a, vec2 b, float ra, float rb) {
+	vec2 pa = p - a;
+	vec2 ba = b - a;
+	float t = clamp(dot(pa, ba) / max(dot(ba, ba), 0.001), 0.0, 1.0);
+	return length(pa - ba * t) - mix(ra, rb, t);
+}
+
+float palm(vec2 p, vec2 at, vec2 seed) {
+	float px = u_view.x / max(u_px.x, 1.0);
+	float sc = mix(0.85, 1.4, hash(seed + vec2(1.3, 0.2))) * (92.0 * px) / 26.0;
+	vec2 q = (p - at) / sc;
+	float lean = (hash(seed + vec2(0.6, 1.8)) - 0.5) * 0.2;
+	q.x -= q.y * lean * 0.12;
+	vec2 crown = vec2(lean * 3.4, -26.0);
+	float trunk = cap(q, vec2(0.0, 1.4), crown, 1.2, 0.38);
+	float fronds = 40.0;
+	for (int k = 0; k < 7; k++) {
+		float fk = float(k);
+		float u = (fk - 3.0) / 3.2;
+		float jitter = (hash(seed + vec2(fk, 3.2)) - 0.5) * 0.15;
+		float ang = u * 1.25 + jitter;
+		float len = mix(12.5, 18.0, hash(seed + vec2(fk, 5.1)));
+		vec2 dir = vec2(sin(ang), -0.12 - 0.95 * cos(ang * 0.42));
+		dir = dir / max(length(dir), 0.001);
+		vec2 mid = crown + dir * len * 0.42 + vec2(0.0, 2.6);
+		vec2 tip = crown + dir * len + vec2(0.0, 3.8);
+		vec2 pa = q - crown;
+		vec2 ba = mid - crown;
+		float t1 = clamp(dot(pa, ba) / max(dot(ba, ba), 0.001), 0.0, 1.0);
+		float w1 = mix(0.16, 1.45, t1) + 0.38 * abs(sin(t1 * 17.0)) * t1;
+		float d1 = length(pa - ba * t1) - w1;
+		pa = q - mid;
+		ba = tip - mid;
+		float t2 = clamp(dot(pa, ba) / max(dot(ba, ba), 0.001), 0.0, 1.0);
+		float w2 = mix(1.45, 0.07, t2) + 0.42 * abs(sin(t2 * 21.0)) * (1.0 - t2);
+		float d2 = length(pa - ba * t2) - w2;
+		fronds = min(fronds, min(d1, d2));
+	}
+	return min(trunk, fronds);
+}
+
 void main() {
 	vec2 p = vec2(gl_FragCoord.x, u_px.y - gl_FragCoord.y) / u_px * u_view;
+	vec2 q = p / u_view;
 	float h = fbm(p * 0.0045);
 	float moss = fbm(p * 0.02 + 3.0);
 	vec3 earth = mix(vec3(0.03, 0.04, 0.038), vec3(0.065, 0.08, 0.058), h);
 	earth = mix(earth, vec3(0.045, 0.072, 0.048), smoothstep(0.45, 0.75, moss) * 0.7);
 	earth += (noise(p * 0.7) - 0.5) * 0.018;
 
+	float topLand = 1.0 - smoothstep(0.06, 0.52, q.y);
 	float c = abs(fract(h * 14.0) - 0.5);
-	earth += vec3(0.66, 0.53, 0.41) * (1.0 - smoothstep(0.0, 0.035, c)) * 0.05;
-
+	earth += vec3(0.72, 0.58, 0.44) * (1.0 - smoothstep(0.0, 0.03, c)) * mix(0.05, 0.12, topLand);
+	earth += vec3(0.04, 0.045, 0.038) * topLand * 0.55;
 	earth += vec3(0.4, 0.33, 0.24) * exp(-distance(p, u_portal) / 200.0) * 0.16;
 
-	vec2 q = p / u_view;
+	float grove = smoothstep(0.4, 0.58, q.y) * (1.0 - smoothstep(0.92, 0.995, q.y));
+	grove *= smoothstep(220.0, 380.0, distance(p, u_portal));
+	if (grove > 0.01) {
+		vec2 cs = vec2(108.0, 175.0);
+		vec2 cell = floor(p / cs);
+		for (int n = 0; n < 9; n++) {
+			float fn = float(n);
+			vec2 id = cell + vec2(mod(fn, 3.0), floor(fn / 3.0)) - 1.0;
+			vec2 at = (id + 0.2 + 0.55 * vec2(hash(id), hash(id + vec2(4.4, 1.1)))) * cs;
+			float onLeft = 1.0 - smoothstep(0.3, 0.52, at.x / u_view.x);
+			if (hash(id + vec2(9.1, 2.7)) < mix(0.26, 0.52, onLeft)) {
+				float d = palm(p, at, id);
+				float cover = (1.0 - smoothstep(-0.18, 0.38, d)) * grove;
+				float shade = (1.0 - smoothstep(3.0, 16.0, length((p - at) * vec2(0.7, 1.4)))) * grove * 0.22;
+				earth = mix(earth, vec3(0.0), shade);
+				earth = mix(earth, vec3(0.016, 0.022, 0.014), cover);
+			}
+		}
+	}
+
 	earth *= 0.55 + 0.45 * smoothstep(0.0, 0.3, q.x) * smoothstep(1.0, 0.7, q.x);
 
 	float a = 1.0 - smoothstep(u_ocean - 140.0, u_ocean + 40.0, p.y);
@@ -491,36 +554,76 @@ void dock(vec2 p, float seed, inout vec4 acc) {
 		idle + gust + pitch * 0.35,
 		heave + pitch * (p.y / max(b.y, 1.0)) * 0.55
 	);
-	ripples(box(q, b, 2.5), acc);
-	over(acc, vec3(0.0), (1.0 - smoothstep(-4.0, 10.0, box(q - vec2(3.0, 7.0), b, 6.0))) * 0.55);
 
-	float d = box(q, b, 2.5);
-	float bh = v_size.y / 7.0;
-	float row = floor((q.y + b.y) / bh);
-	float fy = fract((q.y + b.y) / bh);
-	float jl = 60.0 + 50.0 * hash(vec2(row, seed));
-	float px = q.x + b.x + hash(vec2(row, seed + 3.0)) * jl;
+	float y01 = clamp((q.y + b.y) / max(2.0 * b.y, 1.0), 0.0, 1.0);
+	float taper = mix(1.04, 0.94, y01);
+	float bow = sin(y01 * 3.14159) * (hash(vec2(seed, 0.7)) - 0.5) * 6.0;
+	vec2 wq = vec2(q.x - bow, q.y);
+
+	float nRows = 8.0 + floor(hash(vec2(seed, 2.4)) * 2.99);
+	float nibbleB = (hash(vec2(seed, 5.2)) - 0.35) * 3.0;
+	float nibbleT = (hash(vec2(seed, 4.1)) - 0.5) * 2.5;
+	float ySpan = max(2.0 * b.y + nibbleT + nibbleB, 8.0);
+	float rowF = ((wq.y + b.y + nibbleB) / ySpan) * nRows;
+	float row = floor(rowF);
+	float fy = fract(rowF);
+	float bh = ySpan / nRows;
+
+	float left = (hash(vec2(row, seed + 1.1)) - 0.4) * 7.0;
+	float right = (hash(vec2(row, seed + 2.3)) - 0.4) * 7.0;
+	float chewed = step(0.78, hash(vec2(row, seed + 8.0))) * 5.0;
+	float halfW = b.x * taper;
+	float x0 = -halfW - left + chewed * 0.35 + (hash(vec2(row, seed + 6.6)) - 0.5) * 2.5;
+	float x1 = halfW + right - chewed * 0.55 + (hash(vec2(row, seed + 7.1)) - 0.5) * 2.5;
+	float hw = max(x1 - x0, 8.0) * 0.5;
+	float cx = (x0 + x1) * 0.5;
+	float cy = (row + 0.5) * bh - b.y - nibbleB;
+	float d = box(vec2(wq.x - cx, wq.y - cy), vec2(hw, bh * 0.48), 0.8);
+
+	ripples(d, acc);
+	over(acc, vec3(0.0), (1.0 - smoothstep(-4.0, 12.0, d + 5.0)) * 0.5);
+
+	float jl = 30.0 + 22.0 * hash(vec2(row, seed));
+	float px = wq.x - x0 + hash(vec2(row, seed + 3.0)) * jl * 0.4;
 	float piece = floor(px / jl);
 	float fx = px - piece * jl;
 	float id = hash(vec2(row * 7.0 + piece, seed + 9.0));
 
 	vec3 plank = wood(vec2(fy * bh, px), id * 50.0 + seed);
-	plank = weathered(plank, 0.25 + 0.35 * id) * (0.82 + 0.3 * id);
-	plank *= 0.8 + 0.3 * sin(fy * 3.14159);
-	plank *= 0.8 + 0.35 * fbm(q * 0.06 + seed);
-	float seam = smoothstep(0.0, 0.07, fy) * smoothstep(1.0, 0.93, fy);
-	seam *= smoothstep(0.0, 0.9, fx) * smoothstep(jl, jl - 0.9, fx);
-	plank *= mix(0.25, 1.0, seam);
+	plank = weathered(plank, 0.2 + 0.4 * id) * (0.78 + 0.34 * id);
+	plank *= 0.78 + 0.32 * sin(fy * 3.14159);
+	plank *= 0.78 + 0.38 * fbm(q * 0.06 + seed);
+	float seam = smoothstep(0.0, 0.1, fy) * smoothstep(1.0, 0.9, fy);
+	seam *= smoothstep(0.0, 1.1, fx) * smoothstep(jl, jl - 1.1, fx);
+	plank *= mix(0.22, 1.0, seam);
 	vec2 nail = vec2(min(fx, jl - fx) - 3.0, (abs(fy - 0.5) - 0.22) * bh);
 	plank *= mix(0.4, 1.0, smoothstep(0.5, 0.9, length(nail)));
+	float wet = smoothstep(0.35, -0.15, q.y / max(b.y, 1.0));
+	plank = mix(plank, plank * vec3(0.62, 0.78, 0.58), wet * 0.32 * fbm(q * 0.11 + seed));
 
-	vec3 beam = weathered(wood(vec2(q.y, q.x), seed + 5.0), 0.2) * 0.7;
-	plank = mix(plank, beam, smoothstep(-4.0, -3.4, d));
+	vec3 beam = weathered(wood(vec2(q.y, q.x), seed + 5.0), 0.2) * 0.68;
+	float rail = min(abs(wq.x - x0), abs(wq.x - x1));
+	plank = mix(plank, beam, (1.0 - smoothstep(1.0, 2.6, rail)) * 0.85);
+	plank = mix(plank, beam, smoothstep(-3.2, -2.4, d));
 	over(acc, plank, 1.0 - smoothstep(-0.5, 0.5, d));
 
-	float x = b.x - 6.0;
-	float cx = abs(q.x) < x * 0.5 ? 0.0 : sign(q.x) * x;
-	post(q - vec2(cx, sign(q.y) * (b.y - 1.5)), seed + cx, acc);
+	for (int i = 0; i < 6; i++) {
+		float f = float(i);
+		vec2 at;
+		if (i < 4) {
+			at = vec2(
+				mix(-1.0, 1.0, step(0.5, mod(f, 2.0))) * b.x * 0.78,
+				mix(-1.0, 1.0, step(1.5, f)) * b.y * 0.72
+			);
+		} else {
+			at = vec2(
+				(hash(vec2(f, seed + 11.0)) - 0.5) * b.x * 1.55,
+				-b.y - 3.0 - hash(vec2(f, seed + 12.0)) * 9.0
+			);
+		}
+		at += vec2(hash(vec2(f, seed)) - 0.5, hash(vec2(f, seed + 3.0)) - 0.5) * 8.0;
+		post((q - at) * 1.35, seed + f * 9.0, acc);
+	}
 	dockSeal(q, b, seed, acc);
 }
 

@@ -38,13 +38,13 @@
 	display: block;
 	max-height: none;
 	overflow: visible;
-	padding-bottom: 72px;
+	padding-bottom: 0;
 }
 
 .river-tall .river-frame {
 	width: 100%;
-	max-width: 560px;
-	margin: 0 auto;
+	max-width: none;
+	margin: 0;
 }
 
 .river-canvas,
@@ -116,65 +116,55 @@
 
 /* ---- Skills ---- */
 
-/* The dock itself is painted by the craft shader; this is the text on its planks. */
+/* The dock itself is painted by the craft shader; this is carved into its planks. */
 .river-skill {
 	position: absolute;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 0.25cqw;
 	padding: 0.5cqw 1.2cqw;
 	margin: 0;
 	font-family: var(--primary-font);
-	color: #f3e7cf;
+	font-weight: 700;
+	color: #f7f2e8;
 	text-align: center;
+	-webkit-text-stroke: 0.55px rgba(16, 8, 4, 0.55);
 	text-shadow:
-		0 1px 0 rgba(0, 0, 0, 0.85),
-		0 0 10px rgba(0, 0, 0, 0.75);
+		0 1px 0 rgba(10, 5, 2, 0.95),
+		0 -1px 0 rgba(10, 5, 2, 0.55),
+		0 0 8px rgba(0, 0, 0, 0.7);
 	background: none;
 	border: none;
 	cursor: pointer;
 	z-index: 3;
 	opacity: 1;
 	transform: translate(-50%, -50%);
-	transition: text-shadow 0.25s ease;
+	transition: color 0.25s ease, text-shadow 0.25s ease;
 }
 
 .river-skill-label {
-	font-family: var(--secondary-font);
-	font-size: 1.1cqw;
-	line-height: 1.15;
-}
-
-.river-skill::before {
-	content: "";
-	width: 0.5cqw;
-	height: 0.5cqw;
-	margin-bottom: 0.15cqw;
-	border-radius: 50%;
-	background: var(--skill);
-	box-shadow: 0 0 10px var(--skill);
-	transition: box-shadow 0.25s ease;
+	font-size: 1cqw;
+	line-height: 1.2;
+	letter-spacing: 0.04em;
 }
 
 .river-skill:hover,
 .river-skill:focus-visible,
 .river-skill.is-lit {
+	color: #fffdf8;
 	text-shadow:
-		0 1px 0 rgba(0, 0, 0, 0.85),
-		0 0 14px color-mix(in srgb, var(--skill) 55%, transparent);
+		0 1px 0 rgba(10, 5, 2, 0.95),
+		0 -1px 0 rgba(10, 5, 2, 0.45),
+		0 0 10px rgba(0, 0, 0, 0.75);
 	outline: none;
-}
-
-.river-skill:hover::before,
-.river-skill:focus-visible::before,
-.river-skill.is-lit::before {
-	box-shadow: 0 0 10px var(--skill), 0 0 26px var(--skill);
 }
 
 /* Without WebGL there is no dock, so the text keeps a plain card. */
 .river-flat .river-skill {
+	color: #f3e7cf;
+	-webkit-text-stroke: 0;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
 	background: rgba(6, 12, 14, 0.72);
 	border: 1px solid color-mix(in srgb, var(--skill) 28%, transparent);
 	border-radius: 14px;
@@ -191,17 +181,11 @@
 }
 
 .river-tall .river-skill {
-	gap: 0.8cqw;
 	padding: 2cqw 4cqw;
 }
 
 .river-tall .river-skill-label {
-	font-size: 4.2cqw;
-}
-
-.river-tall .river-skill::before {
-	width: 1.8cqw;
-	height: 1.8cqw;
+	font-size: 3.6cqw;
 }
 
 @media (prefers-reduced-motion: reduce) {

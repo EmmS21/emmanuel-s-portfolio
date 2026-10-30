@@ -73,7 +73,7 @@ export const buildCrafts = (crafts) => {
 	const out = { pos: [], local: [], size: [], shape: [] };
 	crafts.forEach((c, i) => {
 		const rope = c.rope || 0;
-		const pad = c.kind === "dock" ? 28 : PAD;
+		const pad = c.kind === "dock" ? 40 : PAD;
 		const hx = c.w / 2 + pad;
 		const hy = c.h / 2 + rope + pad;
 		[

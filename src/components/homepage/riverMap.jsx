@@ -219,8 +219,9 @@ const RiverMap = ({
 							style={{
 								left: pct(label.x, layout.W),
 								top: pct(label.y, layout.H),
-								width: pct(layout.dock.w, layout.W),
-								height: pct(layout.dock.h, layout.H),
+								width: pct(label.w, layout.W),
+								height: pct(label.h, layout.H),
+								transform: `translate(-50%, -50%) rotate(${label.yaw}rad)`,
 								"--skill": skill.color,
 							}}
 							{...skillHandlers(skill)}
