@@ -12,9 +12,6 @@ const INFO = {
 		linkedin: "https://www.linkedin.com/in/emmanuel-s-42b49176/",
 	},
 
-	calendly:
-		"https://calendly.com/emmanuel-emmanuelsibanda/automation-discovery-call",
-
 	homepage: {
 		tagline: "Emmanuel Sibanda",
 		pitch: "I understand business problems and the users behind them, then build software and automation that grow revenue and cut costs.",
@@ -60,7 +57,8 @@ const INFO = {
 					},
 					{
 						project: "vial",
-						did: "A pipeline that takes clinical-trial PDFs, parses each document, extracts fields against a fixed schema, validates the result, and hands clean JSON to the reporting API.",
+						open: false,
+						did: "Turned clinical-trial PDFs into schema-validated JSON for stakeholder reports.",
 					},
 					{
 						project: "daggerverse",
@@ -73,10 +71,17 @@ const INFO = {
 				label: "Forward Deployed | Solutions Engineer",
 				color: "#c9a0e8",
 				summary:
-					"Going into someone else's system, finding where real users get stuck, proving the cause, and shipping the fix.",
-				tools: ["Issue mapping", "Repro tests", "C++", "Go", "Python", "TypeScript"],
+					"I go into someone else's product, find the step where their user gets stuck, prove the cause, and ship the fix in their repo.",
+				tools: [],
 				work: [
-					{ project: "opensource", did: "Five merged pull requests across GrowthBook, Dagger, OpenFn and Koza." },
+					{
+						project: "blackstone",
+						did: "Went into consulting and investment teams whose portfolio insight was stuck in Zoom transcripts. Shipped automation that extracts and classifies issues, validates them against existing data, and checks the receiver's permissions before anything is sent.",
+					},
+					{
+						project: "gizmodata",
+						did: "Went into GizmoData's C++ server. Users lost work when the shared DuckDB filled up, idle connections held a seat, memory limits did not reach DuckDB, and clients could print stored passwords. Four fixes merged: a full server returns a retry, a quiet connection gives up its seat without cutting a download, unsafe memory stops startup, and no client can print passwords.",
+					},
 				],
 			},
 		],
@@ -97,8 +102,9 @@ const INFO = {
 				place: "San Francisco, remote",
 				dates: "Jan 2023 – Dec 2023",
 				summary:
-					"A pipeline that turns clinical-trial PDFs into schema-validated JSON for stakeholder reports.",
+					"Turned clinical-trial PDFs into schema-validated JSON for stakeholder reports.",
 				project: "vial",
+				open: false,
 			},
 			{
 				org: "The Gradient Boost",
@@ -332,7 +338,18 @@ const INFO = {
 						],
 					},
 				],
-				stack: ["Dagger", "Docker", "Python", "MongoDB"],
+				stack: [
+					"Dagger",
+					"Docker",
+					"Python",
+					"TypeScript",
+					"SvelteKit",
+					"LangChain",
+					"MongoDB",
+					"Node.js",
+					"GitHub Actions",
+					"Modal",
+				],
 				links: [
 					{ label: "View the modules", url: "https://github.com/EmmS21/daggerverse" },
 				],

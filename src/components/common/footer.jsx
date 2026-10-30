@@ -9,14 +9,6 @@ const Footer = () => {
 		<div className="footer">
 			<div className="footer-links">
 				<a
-					href={INFO.calendly}
-					target="_blank"
-					rel="noreferrer"
-					className="footer-link"
-				>
-					Book a Discovery Call
-				</a>
-				<a
 					href={`mailto:${INFO.main.email}`}
 					className="footer-link"
 				>

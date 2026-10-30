@@ -31,21 +31,38 @@ const SkillScene = ({ skill, projects, onOpenProject, onWarmProject, onClose }) 
 				<ul className="scene-work">
 					{skill.work.map((item, i) => {
 						const project = projectById[item.project];
+						const canOpen = item.open !== false && project;
+						const body = (
+							<>
+								<span className="scene-work-head">
+									<span className="scene-work-title">
+										{item.label || project.title}
+									</span>
+									<span className="scene-work-industry">{project.industry}</span>
+								</span>
+								<span className="scene-work-did">{item.did}</span>
+								{canOpen && (
+									<FontAwesomeIcon
+										icon={faArrowRight}
+										className="scene-work-arrow"
+									/>
+								)}
+							</>
+						);
 						return (
 							<li key={item.label || item.project} style={{ "--i": i }}>
-								<button
-									type="button"
-									onClick={() => onOpenProject(project.id)}
-									onPointerEnter={onWarmProject}
-									onFocus={onWarmProject}
-								>
-									<span className="scene-work-head">
-										<span className="scene-work-title">{item.label || project.title}</span>
-										<span className="scene-work-industry">{project.industry}</span>
-									</span>
-									<span className="scene-work-did">{item.did}</span>
-									<FontAwesomeIcon icon={faArrowRight} className="scene-work-arrow" />
-								</button>
+								{canOpen ? (
+									<button
+										type="button"
+										onClick={() => onOpenProject(project.id)}
+										onPointerEnter={onWarmProject}
+										onFocus={onWarmProject}
+									>
+										{body}
+									</button>
+								) : (
+									<div className="scene-work-static">{body}</div>
+								)}
 							</li>
 						);
 					})}

@@ -33,7 +33,7 @@ const WorkHistory = ({ history, skills, linkedin, onOpenProject, onWarmProject, 
 										</span>
 									))}
 								</span>
-								{entry.project && (
+								{entry.project && entry.open !== false && (
 									<button
 										type="button"
 										className="history-open"

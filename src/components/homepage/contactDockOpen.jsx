@@ -1,12 +1,11 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar, faEnvelope, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 
 import INFO from "../../data/user";
 
 const LINKS = [
-	{ label: "Book a call", url: INFO.calendly, icon: faCalendar },
 	{ label: INFO.main.email, url: `mailto:${INFO.main.email}`, icon: faEnvelope },
 	{ label: "LinkedIn", url: INFO.socials.linkedin, icon: faLinkedin },
 	{ label: "GitHub", url: INFO.socials.github, icon: faGithub },

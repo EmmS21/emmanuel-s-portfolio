@@ -490,7 +490,8 @@
 	animation-delay: calc(var(--i) * 0.07s + 0.1s);
 }
 
-.scene-work button {
+.scene-work button,
+.scene-work-static {
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -503,8 +504,15 @@
 	background: rgba(255, 255, 255, 0.025);
 	border: 1px solid rgba(255, 255, 255, 0.05);
 	border-radius: 12px;
+}
+
+.scene-work button {
 	cursor: pointer;
 	transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.scene-work-static {
+	padding-right: 16px;
 }
 
 .scene-work button:hover,
@@ -591,6 +599,7 @@
 }
 
 .scene-dock .scene-work button,
+.scene-dock .scene-work-static,
 .scene-dock .scene-skill {
 	background: rgba(10, 8, 6, 0.35);
 }

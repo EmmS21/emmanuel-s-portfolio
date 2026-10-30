@@ -1,8 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import INFO from "../../data/user";
-
 import "./styles/navBar.css";
 
 const NavBar = (props) => {
@@ -21,15 +19,6 @@ const NavBar = (props) => {
 							}
 						>
 							<Link to="/">Home</Link>
-						</li>
-						<li className="nav-item nav-item-cta">
-							<a
-								href={INFO.calendly}
-								target="_blank"
-								rel="noreferrer"
-							>
-								Book a Call
-							</a>
 						</li>
 					</ul>
 				</div>
