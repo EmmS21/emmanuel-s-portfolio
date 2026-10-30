@@ -44,6 +44,8 @@ const RiverMap = ({
 	zoomSkill,
 	onOpenSkill,
 	onOpenHistory,
+	onWarmSkill,
+	onWarmHistory,
 	children,
 }) => {
 	const { skills } = homepage;
@@ -98,9 +100,15 @@ const RiverMap = ({
 	);
 
 	const skillHandlers = (skill) => ({
-		onMouseEnter: () => setActiveSkill(skill.id),
+		onMouseEnter: () => {
+			setActiveSkill(skill.id);
+			onWarmSkill?.();
+		},
 		onMouseLeave: () => setActiveSkill(null),
-		onFocus: () => setActiveSkill(skill.id),
+		onFocus: () => {
+			setActiveSkill(skill.id);
+			onWarmSkill?.();
+		},
 		onBlur: () => setActiveSkill(null),
 		onClick: () => onOpenSkill(skill.id),
 	});
@@ -194,6 +202,8 @@ const RiverMap = ({
 				<Hummingbird
 					label="Work History"
 					onClick={onOpenHistory}
+					onPointerEnter={onWarmHistory}
+					onFocus={onWarmHistory}
 					style={{
 						left: pct(tall ? 335 : 1200, layout.W),
 						top: pct(tall ? 85 : 150, layout.H),
@@ -202,7 +212,16 @@ const RiverMap = ({
 
 				<p
 					className="river-name"
-					style={{ top: pct(layout.portal.y - (tall ? 178 : 228), layout.H) }}
+					style={{
+						top: pct(
+							tall
+								? layout.portal.y - 178
+								: Math.max(
+										...layout.labels.map((label) => label.y + label.h / 2)
+								  ) + 72,
+							layout.H
+						),
+					}}
 				>
 					{homepage.tagline}
 				</p>

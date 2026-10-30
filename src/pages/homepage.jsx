@@ -3,14 +3,18 @@ import { Helmet } from "react-helmet";
 
 import RiverMap from "../components/homepage/riverMap";
 import ContactDock from "../components/homepage/contactDock";
+import { warm } from "../components/homepage/warmPanel";
 import INFO from "../data/user";
 import SEO from "../data/seo";
 
 import "./styles/homepage.css";
 
-const WorkHistory = lazy(() => import("../components/homepage/workHistory"));
-const SkillScene = lazy(() => import("../components/homepage/skillScene"));
-const ProjectScene = lazy(() => import("../components/homepage/projectScene"));
+const loadHistory = () => import("../components/homepage/workHistory");
+const loadSkill = () => import("../components/homepage/skillScene");
+const loadProject = () => import("../components/homepage/projectScene");
+const WorkHistory = lazy(loadHistory);
+const SkillScene = lazy(loadSkill);
+const ProjectScene = lazy(loadProject);
 
 const prefersMotion = () =>
 	!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -61,6 +65,8 @@ const Homepage = () => {
 					zoomSkill={openSkill}
 					onOpenSkill={setOpenSkill}
 					onOpenHistory={() => setHistoryOpen(true)}
+					onWarmSkill={() => warm(loadSkill)}
+					onWarmHistory={() => warm(loadHistory)}
 				>
 					<ContactDock open={contactOpen} onToggle={setContactOpen} />
 				</RiverMap>
@@ -73,6 +79,7 @@ const Homepage = () => {
 						skills={homepage.skills}
 						linkedin={INFO.socials.linkedin}
 						onOpenProject={setOpenProject}
+						onWarmProject={() => warm(loadProject)}
 						onClose={closeHistory}
 					/>
 				)}
@@ -82,6 +89,7 @@ const Homepage = () => {
 						skill={skill}
 						projects={homepage.projects}
 						onOpenProject={setOpenProject}
+						onWarmProject={() => warm(loadProject)}
 						onClose={closeSkill}
 					/>
 				)}

@@ -844,17 +844,28 @@ void birds(vec2 p, inout vec4 acc) {
 			) * mix(3.0, 13.0, hash(vec2(g, cycle + 17.0)));
 			vec2 b = local - at;
 			float scale = scale0 * mix(0.72, 1.28, hash(vec2(g, cycle + 18.0)));
-			if (abs(b.x) > 9.0 * scale || abs(b.y) > 9.0 * scale) continue;
-			float flap = 0.55 + 0.45 * sin(u_time * mix(7.0, 12.5, hash(vec2(g, 19.0))) + g * 2.8);
+			if (abs(b.x) > 12.0 * scale || abs(b.y) > 11.0 * scale) continue;
+			float flap = 0.5 + 0.5 * sin(u_time * mix(7.0, 12.5, hash(vec2(g, 19.0))) + g * 2.8);
 			vec2 q = b / scale;
-			q.y = abs(q.y);
-			float body = length((q - vec2(0.35, 0.0)) / vec2(1.7, 0.5)) - 0.85;
-			float lift = 0.55 + 1.85 * flap;
-			float wing = abs(q.y - lift + 0.22 * q.x * q.x) - 0.32;
-			wing = max(wing, abs(q.x + 0.35) - 2.1);
-			wing = max(wing, q.x - 0.55);
-			vec3 col = mix(vec3(0.76, 0.79, 0.74), vec3(0.9, 0.91, 0.86), hash(vec2(g, cycle + 20.0)));
-			over(acc, col, (1.0 - smoothstep(0.0, 0.85, min(body, wing))) * fade);
+			float body = length((q - vec2(0.08, 0.04)) / vec2(1.55, 0.4)) - 0.95;
+			float head = length((q - vec2(1.38, 0.2)) / vec2(0.5, 0.42)) - 1.0;
+			float beak = length((q - vec2(1.95, 0.16)) / vec2(0.62, 0.13)) - 1.0;
+			vec2 tq = q + vec2(1.62, 0.02);
+			float tail = min(
+				length((tq - vec2(0.0, 0.24)) / vec2(1.12, 0.16)) - 0.52,
+				length((tq - vec2(0.0, -0.2)) / vec2(1.22, 0.14)) - 0.52
+			);
+			vec2 sh = q - vec2(-0.05, 0.1);
+			float up = mix(0.2, 1.2, flap);
+			vec2 wu = vec2(sh.x * 0.42 + sh.y * up, sh.y - sh.x * 0.2);
+			float wingU = length(wu / vec2(2.15, 0.26)) - 1.0;
+			float dn = mix(1.05, 0.15, flap);
+			vec2 wl = vec2(sh.x * 0.5 - sh.y * dn, sh.y + sh.x * 0.16);
+			float wingL = length(wl / vec2(1.65, 0.22)) - 1.0;
+			float sil = min(min(body, head), min(min(beak, tail), min(wingU, wingL)));
+			vec3 col = mix(vec3(0.22, 0.24, 0.2), vec3(0.62, 0.6, 0.54), hash(vec2(g, cycle + 20.0)));
+			col = mix(col, col * 1.28, clamp(0.55 - q.y, 0.0, 1.0) * 0.35);
+			over(acc, col, (1.0 - smoothstep(0.0, 0.5, sil)) * fade);
 		}
 	}
 }
@@ -978,7 +989,7 @@ const skyBusy = (time, weather, gust) =>
 	(weather && (weather[2] > 0.01 || weather[3] > 0.01)) ||
 	flocksUp(time);
 
-const compile = (gl, vert, frag) => {
+const compile = (gl, vert, frag, name) => {
 	const program = gl.createProgram();
 	[
 		[gl.VERTEX_SHADER, vert],
@@ -988,13 +999,20 @@ const compile = (gl, vert, frag) => {
 		gl.shaderSource(shader, source);
 		gl.compileShader(shader);
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-			throw new Error(gl.getShaderInfoLog(shader));
+			const kind = type === gl.VERTEX_SHADER ? "vertex" : "fragment";
+			throw new Error(
+				`WebGL ${name} ${kind} shader: ${
+					gl.getShaderInfoLog(shader) || "compile failed"
+				}`
+			);
 		}
 		gl.attachShader(program, shader);
 	});
 	gl.linkProgram(program);
 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		throw new Error(gl.getProgramInfoLog(program));
+		throw new Error(
+			`WebGL ${name} program: ${gl.getProgramInfoLog(program) || "link failed"}`
+		);
 	}
 	return program;
 };
@@ -1035,12 +1053,20 @@ const makeTexture = (gl, width, height) => {
 	return texture;
 };
 
+export const captureGlError = (error) => {
+	const captured =
+		error instanceof Error ? error : new Error(String(error || "WebGL failed"));
+	if (typeof reportError === "function") reportError(captured);
+	else console.error(captured);
+	return captured;
+};
+
 // Draws land, rivers, crafts, and weather in one context.
 // Land is painted at 1x into a texture (same as the old ground canvas) and stretched.
 export const createGlWater = (canvas, layout) => {
 	const gl = canvas.getContext("webgl", GL_OPTS);
-	if (!gl) return null;
-	const program = compile(gl, WATER_VERT, WATER_FRAG);
+	if (!gl) throw new Error("WebGL context unavailable");
+	const program = compile(gl, WATER_VERT, WATER_FRAG, "water");
 	gl.useProgram(program);
 	const strips = buildStrips(layout.rivers);
 	const bindWater = attributes(gl, program, [
@@ -1061,7 +1087,7 @@ export const createGlWater = (canvas, layout) => {
 	const uTrail = u("u_trail");
 	const uAge = u("u_age");
 
-	const craftProgram = compile(gl, CRAFT_VERT, CRAFT_FRAG);
+	const craftProgram = compile(gl, CRAFT_VERT, CRAFT_FRAG, "craft");
 	gl.useProgram(craftProgram);
 	const crafts = buildCrafts(layout.crafts);
 	const bindCrafts = attributes(gl, craftProgram, [
@@ -1079,7 +1105,7 @@ export const createGlWater = (canvas, layout) => {
 	const cWeather = c("u_weather");
 	const cLevel = c("u_level");
 
-	const groundProgram = compile(gl, QUAD_VERT, GROUND_FRAG);
+	const groundProgram = compile(gl, QUAD_VERT, GROUND_FRAG, "ground");
 	gl.useProgram(groundProgram);
 	const bindGround = attributes(gl, groundProgram, [["a_pos", FULL_SCREEN, 2]]);
 	const g = (name) => gl.getUniformLocation(groundProgram, name);
@@ -1088,7 +1114,7 @@ export const createGlWater = (canvas, layout) => {
 	gl.uniform1f(g("u_ocean"), layout.oceanY);
 	const gPx = g("u_px");
 
-	const blitProgram = compile(gl, QUAD_VERT, BLIT_FRAG);
+	const blitProgram = compile(gl, QUAD_VERT, BLIT_FRAG, "blit");
 	gl.useProgram(blitProgram);
 	const bindBlit = attributes(gl, blitProgram, [["a_pos", FULL_SCREEN, 2]]);
 	const blitPx = gl.getUniformLocation(blitProgram, "u_px");
@@ -1150,24 +1176,32 @@ export const createGlWater = (canvas, layout) => {
 
 	let sky = null;
 	let skyWait = 0;
+	let skyDead = false;
 	let alive = true;
 	const ensureSky = () => {
+		if (skyDead) return null;
 		if (sky || !alive) return sky;
-		const skyProgram = compile(gl, QUAD_VERT, WEATHER_FRAG);
-		gl.useProgram(skyProgram);
-		const bindSky = attributes(gl, skyProgram, [["a_pos", FULL_SCREEN, 2]]);
-		const loc = (name) => gl.getUniformLocation(skyProgram, name);
-		gl.uniform2f(loc("u_view"), layout.W, layout.H);
-		sky = {
-			program: skyProgram,
-			bind: bindSky,
-			px: loc("u_px"),
-			time: loc("u_time"),
-			reveal: loc("u_reveal"),
-			weather: loc("u_weather"),
-			gust: loc("u_gust"),
-		};
-		return sky;
+		try {
+			const skyProgram = compile(gl, QUAD_VERT, WEATHER_FRAG, "weather");
+			gl.useProgram(skyProgram);
+			const bindSky = attributes(gl, skyProgram, [["a_pos", FULL_SCREEN, 2]]);
+			const loc = (name) => gl.getUniformLocation(skyProgram, name);
+			gl.uniform2f(loc("u_view"), layout.W, layout.H);
+			sky = {
+				program: skyProgram,
+				bind: bindSky,
+				px: loc("u_px"),
+				time: loc("u_time"),
+				reveal: loc("u_reveal"),
+				weather: loc("u_weather"),
+				gust: loc("u_gust"),
+			};
+			return sky;
+		} catch (error) {
+			skyDead = true;
+			captureGlError(error);
+			return null;
+		}
 	};
 	const warmSky = () => {
 		if (skyWait) return;
@@ -1224,14 +1258,16 @@ export const createGlWater = (canvas, layout) => {
 
 			if (skyBusy(time, weather, gust)) {
 				const pass = ensureSky();
-				gl.useProgram(pass.program);
-				pass.bind();
-				gl.uniform2f(pass.px, canvas.width, canvas.height);
-				gl.uniform1f(pass.time, time);
-				gl.uniform1f(pass.reveal, reveal);
-				gl.uniform4fv(pass.weather, weather);
-				gl.uniform4fv(pass.gust, gust);
-				gl.drawArrays(gl.TRIANGLES, 0, 3);
+				if (pass) {
+					gl.useProgram(pass.program);
+					pass.bind();
+					gl.uniform2f(pass.px, canvas.width, canvas.height);
+					gl.uniform1f(pass.time, time);
+					gl.uniform1f(pass.reveal, reveal);
+					gl.uniform4fv(pass.weather, weather);
+					gl.uniform4fv(pass.gust, gust);
+					gl.drawArrays(gl.TRIANGLES, 0, 3);
+				}
 			} else {
 				warmSky();
 			}

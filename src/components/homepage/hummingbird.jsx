@@ -13,7 +13,7 @@ const WING = [
 	"M56 62 C46 60 24 64 10 68 C22 72 40 66 56 62 Z",
 ];
 
-const Hummingbird = ({ label, onClick, style }) => {
+const Hummingbird = ({ label, onClick, onPointerEnter, onFocus, style }) => {
 	const ref = useRef(null);
 
 	useEffect(() => {
@@ -35,7 +35,15 @@ const Hummingbird = ({ label, onClick, style }) => {
 	}, []);
 
 	return (
-		<button type="button" className="bird" ref={ref} style={style} onClick={onClick}>
+		<button
+			type="button"
+			className="bird"
+			ref={ref}
+			style={style}
+			onClick={onClick}
+			onPointerEnter={onPointerEnter}
+			onFocus={onFocus}
+		>
 			<span className="bird-flight">
 				<svg className="bird-svg" viewBox="0 0 132 136" aria-hidden="true">
 					<defs>
@@ -64,7 +72,16 @@ const Hummingbird = ({ label, onClick, style }) => {
 							<stop offset="55%" stopColor="#d5ddd4" />
 							<stop offset="100%" stopColor="#8a948c" />
 						</linearGradient>
+						<linearGradient id="hb-gorget" x1="0" y1="0" x2="1" y2="1">
+							<stop offset="0%" stopColor="#7cffb0" />
+							<stop offset="45%" stopColor="#2ad4c4" />
+							<stop offset="100%" stopColor="#c45cff" />
+						</linearGradient>
 					</defs>
+
+					<g className="bird-wing bird-wing-far">
+						<path d="M72 58 C64 74 42 96 16 104 C38 86 58 68 72 56 Z" fill="url(#hb-wing)" />
+					</g>
 
 					<g className="bird-wing bird-wing-ghost">
 						{WING.map((d) => (
@@ -72,11 +89,13 @@ const Hummingbird = ({ label, onClick, style }) => {
 						))}
 					</g>
 
-					<path d="M54 88 L16 122 L24 128 L58 92 Z" fill="url(#hb-tail)" />
-					<path d="M58 90 L32 128 L40 132 L62 94 Z" fill="url(#hb-tail)" />
-					<path d="M62 92 L48 130 L56 130 L66 96 Z" fill="url(#hb-tail)" />
-					<path d="M56 90 L22 124" stroke="#082822" strokeWidth="0.7" opacity="0.35" />
-					<path d="M60 92 L36 130" stroke="#082822" strokeWidth="0.7" opacity="0.35" />
+					<path d="M52 88 L8 118 L18 128 L56 94 Z" fill="url(#hb-tail)" />
+					<path d="M56 90 L22 126 L32 134 L60 96 Z" fill="url(#hb-tail)" />
+					<path d="M60 92 L40 128 L50 134 L66 98 Z" fill="url(#hb-tail)" />
+					<path d="M64 94 L54 128 L62 130 L70 98 Z" fill="url(#hb-tail)" />
+					<path d="M54 90 L14 122" stroke="#082822" strokeWidth="0.7" opacity="0.35" />
+					<path d="M58 92 L28 128" stroke="#082822" strokeWidth="0.7" opacity="0.35" />
+					<path d="M62 94 L46 128" stroke="#082822" strokeWidth="0.7" opacity="0.28" />
 
 					<path
 						d="M82 46 C68 54 52 72 46 92 C44 98 52 102 60 94 C72 80 84 60 82 46 Z"
@@ -86,6 +105,11 @@ const Hummingbird = ({ label, onClick, style }) => {
 						d="M78 54 C66 64 54 78 50 92 C58 94 70 78 76 62 Z"
 						fill="url(#hb-belly)"
 					/>
+					<path
+						d="M80 48 C76 56 74 64 78 68 C84 60 86 52 82 46 Z"
+						fill="url(#hb-gorget)"
+					/>
+					<path d="M58 96 C56 104 54 110 58 112 C62 106 62 100 60 96 Z" fill="#0d4a40" opacity="0.7" />
 
 					<path
 						d="M86 26 C76 18 60 20 58 34 C56 44 68 52 80 48 C90 44 94 34 86 26 Z"
@@ -96,9 +120,11 @@ const Hummingbird = ({ label, onClick, style }) => {
 						fill="#d8f56e"
 						opacity="0.42"
 					/>
+					<ellipse cx="72" cy="36" rx="6.5" ry="5.2" fill="#0a3d34" opacity="0.18" />
 
-					<circle cx="70" cy="33" r="2.6" fill="#07110e" />
-					<circle cx="70.9" cy="32.1" r="0.75" fill="#f6fff4" />
+					<circle cx="70" cy="33" r="3.1" fill="#07110e" />
+					<circle cx="70.9" cy="32.1" r="0.9" fill="#f6fff4" />
+					<circle cx="69.4" cy="33.6" r="0.45" fill="#4a7a6a" />
 
 					<g className="bird-wing">
 						{WING.map((d) => (
@@ -126,6 +152,13 @@ const Hummingbird = ({ label, onClick, style }) => {
 							strokeWidth="0.55"
 							opacity="0.28"
 						/>
+						<path
+							d="M54 62 C42 64 24 70 10 76"
+							fill="none"
+							stroke="#0d4a40"
+							strokeWidth="0.5"
+							opacity="0.22"
+						/>
 					</g>
 
 					<path d="M128 12 L84 28 L82 34 Q104 24 128 12 Z" fill="url(#hb-beak)" />
@@ -137,6 +170,7 @@ const Hummingbird = ({ label, onClick, style }) => {
 						strokeWidth="0.9"
 						strokeLinecap="round"
 					/>
+					<ellipse cx="92" cy="26.5" rx="1.1" ry="0.7" fill="#2a332e" opacity="0.45" />
 				</svg>
 			</span>
 			<span className="bird-banner">{label}</span>

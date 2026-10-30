@@ -46,6 +46,12 @@
 	opacity: 0.28;
 }
 
+.bird-wing-far {
+	opacity: 0.55;
+	animation-duration: 0.1s;
+	transform-origin: 88% 42%;
+}
+
 .bird-banner {
 	position: relative;
 	margin-top: 0.9cqw;

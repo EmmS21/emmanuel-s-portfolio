@@ -5,7 +5,7 @@ import { faArrowRight, faArrowUpRightFromSquare } from "@fortawesome/free-solid-
 import SceneShell from "./sceneShell";
 import skillsFor from "./skillsFor";
 
-const WorkHistory = ({ history, skills, linkedin, onOpenProject, onClose }) => {
+const WorkHistory = ({ history, skills, linkedin, onOpenProject, onWarmProject, onClose }) => {
 	const skillById = Object.fromEntries(skills.map((skill) => [skill.id, skill]));
 	const entrySkills = (entry) =>
 		entry.project
@@ -38,6 +38,8 @@ const WorkHistory = ({ history, skills, linkedin, onOpenProject, onClose }) => {
 										type="button"
 										className="history-open"
 										onClick={() => onOpenProject(entry.project)}
+										onPointerEnter={onWarmProject}
+										onFocus={onWarmProject}
 									>
 										See the work <FontAwesomeIcon icon={faArrowRight} />
 									</button>

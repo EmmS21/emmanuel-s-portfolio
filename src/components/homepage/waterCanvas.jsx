@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 import { MAX_RIVERS, TRAIL, IMPULSE, sizeCanvas } from "./riverStrips";
-import { createGlWater } from "./waterGl";
+import { captureGlError, createGlWater } from "./waterGl";
 
 const MAX_PACE = 900;
 
@@ -207,16 +207,29 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, o
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
+		let failed = false;
+		const fail = (error) => {
+			if (failed) return;
+			failed = true;
+			captureGlError(error);
+			onUnsupported();
+		};
 		let water;
 		try {
 			water = createGlWater(canvas, layout);
 		} catch (error) {
-			water = null;
-		}
-		if (!water) {
-			onUnsupported();
+			fail(error);
 			return undefined;
 		}
+		if (!water) {
+			fail(new Error("WebGL context unavailable"));
+			return undefined;
+		}
+		const onLost = (event) => {
+			event.preventDefault();
+			fail(new Error("WebGL context lost"));
+		};
+		canvas.addEventListener("webglcontextlost", onLost);
 
 		const dpr = Math.min(window.devicePixelRatio || 1, 2);
 		const current = {
@@ -273,20 +286,26 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, o
 				forces.setPose(poseHold.current.px, poseHold.current.py);
 			}
 			if (moving) forces.update(now, dt);
-			water.draw({
-				time,
-				weather: weather.out,
-				gust: weather.gust,
-				level: weather.level,
-				pose: forces.pose,
-				impulse: forces.list,
-				impAge: forces.ages,
-				reveal: current.reveal,
-				focus: current.focus,
-				lit: current.lit,
-				trail: trail.trail,
-				ages: trail.ages,
-			});
+			try {
+				water.draw({
+					time,
+					weather: weather.out,
+					gust: weather.gust,
+					level: weather.level,
+					pose: forces.pose,
+					impulse: forces.list,
+					impAge: forces.ages,
+					reveal: current.reveal,
+					focus: current.focus,
+					lit: current.lit,
+					trail: trail.trail,
+					ages: trail.ages,
+				});
+			} catch (error) {
+				stop();
+				fail(error);
+				return;
+			}
 
 			if (moving) frame = requestAnimationFrame(render);
 		};
@@ -319,6 +338,7 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, o
 		return () => {
 			stop();
 			document.removeEventListener("visibilitychange", onVis);
+			canvas.removeEventListener("webglcontextlost", onLost);
 			observer.disconnect();
 			stage.removeEventListener("pointermove", onMove);
 			if (state.current.bangRef) state.current.bangRef.current = null;

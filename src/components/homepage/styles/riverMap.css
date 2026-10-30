@@ -106,8 +106,8 @@
 	left: 50%;
 	transform: translateX(-50%);
 	margin: 0;
-	font-size: clamp(9px, 0.8cqw, 13px);
-	letter-spacing: 0.24em;
+	font-size: clamp(28px, 3.6cqw, 58px);
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--accent-warm);
 	white-space: nowrap;
@@ -179,6 +179,7 @@
 
 .river-tall .river-name {
 	font-size: 2.8cqw;
+	letter-spacing: 0.24em;
 }
 
 .river-tall .river-skill {

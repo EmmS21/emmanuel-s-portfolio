@@ -91,10 +91,11 @@
 
 .scene-steps {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 	gap: 8px;
 	margin: 22px 0 6px;
 }
+
 
 .scene-step {
 	display: flex;
@@ -172,6 +173,10 @@
 	color: var(--primary-color);
 }
 
+.scene-system + .scene-text {
+	margin-top: 20px;
+}
+
 .scene-system {
 	position: relative;
 	margin: 0;
@@ -201,6 +206,40 @@
 	opacity: 0;
 	animation: scene-item 0.45s ease forwards;
 	animation-delay: calc(var(--i) * 0.22s + 0.15s);
+}
+
+.scene-tip {
+	border-bottom: 1px dotted color-mix(in srgb, var(--accent, #7fd1c4) 80%, #fff);
+	cursor: help;
+	position: relative;
+}
+
+.scene-tip::after {
+	content: attr(data-tip);
+	position: absolute;
+	left: 50%;
+	top: calc(100% + 6px);
+	transform: translateX(-50%);
+	padding: 4px 8px;
+	font-family: var(--primary-font);
+	font-size: 11px;
+	font-weight: 400;
+	letter-spacing: 0.02em;
+	line-height: 1.3;
+	white-space: nowrap;
+	color: #fff4e4;
+	background: #0b1519;
+	border: 1px solid rgba(127, 209, 196, 0.35);
+	border-radius: 6px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+	z-index: 3;
+}
+
+.scene-tip:hover::after,
+.scene-tip:focus-visible::after {
+	opacity: 1;
 }
 
 .scene-system-node {
@@ -432,20 +471,17 @@
 	margin-top: 18px;
 }
 
-.scene-section {
-	margin: 26px 0 10px;
-	font-size: 11px;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-	color: var(--tertiary-color);
-}
-
 .scene-work {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	display: grid;
 	gap: 8px;
+}
+
+.scene-text + .scene-work,
+.scene-tools + .scene-work {
+	margin-top: 22px;
 }
 
 .scene-work li {
@@ -515,6 +551,23 @@
 .scene-work button:hover .scene-work-arrow {
 	color: var(--accent);
 	transform: translate(3px, -50%);
+}
+
+.scene-work button.is-open {
+	border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+	background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.scene-work button.is-open .scene-work-arrow {
+	transform: translateY(-50%) rotate(90deg);
+}
+
+.scene-work .scene-system {
+	margin: 4px 8px 12px;
+}
+
+.scene-work .scene-links {
+	margin: 0 8px 12px;
 }
 
 /* ---- Skill panel: seen through, over the zoomed-in dock ---- */

@@ -25,14 +25,21 @@ const INFO = {
 				label: "Product Engineer",
 				color: "#e2b878",
 				summary:
-					"Turning a business problem into a product people use: find where the work breaks, design the system, ship it.",
-				tools: ["Discovery", "System design", "React", "TypeScript", "Electron"],
+					"I map how users and teams actually work and translate those workflows into software, from discovery through design and delivery.",
+				tools: [],
 				work: [
-					{ project: "blackstone", did: "Turned call transcripts into structured portfolio intelligence for consulting and investment teams, saving six figures in billable hours." },
-					{ project: "vial", did: "Turned unstructured clinical-trial PDFs into validated data that stakeholder reports could rely on." },
-					{ project: "fundaai", did: "Designed exam prep that works with or without internet, from the app store to the tutors." },
-					{ project: "adalchemy", did: "Gave small businesses a marketing function, run from a Discord bot, with the owner approving every ad." },
-					{ project: "pair", did: "Built practice for the part interviews test: explaining your logic to another person." },
+					{
+						project: "blackstone",
+						did: "Worked with consulting and investment teams to translate their transcript review workflow into automation that extracts and classifies issues, stores structured portfolio intelligence, and enforces role-based access, resulting in productivity gains amounting to 6 figures in billable hour savings.",
+					},
+					{
+						project: "gizmodata",
+						did: "GizmoData is how multiple programs query the same DuckDB. Users were losing work when the server filled up and crashed, waiting behind idle connections that held a seat, running on machines that did not actually cap memory, and exposed to other clients reading stored passwords. Shipped four merged fixes so a full server tells the next user to retry instead of taking everyone down, a quiet connection gives up its seat without cutting off a download in progress, the server will not start if memory is configured unsafely, and no client can print stored passwords.",
+					},
+					{
+						project: "fundaai",
+						did: "FundaAI is an AI learning system that helps kids across Africa improve their STEM grades and grow into engineers. It is an offshoot of The Gradient Boost, where I raised $50,000. Students get tutors and exam practice that still work when the internet is down.",
+					},
 				],
 			},
 			{
@@ -40,15 +47,25 @@ const INFO = {
 				label: "Backend and Infrastructure",
 				color: "#6fb6e8",
 				summary:
-					"APIs, pipelines and storage that keep working when the network does not.",
-				tools: ["FastAPI", "Go", "AWS Lambda", "PostgreSQL", "Dagger", "Snowflake"],
+					"I build the APIs, pipelines and storage, then debug what they cost to run and make sure the data can come back.",
+				tools: [],
 				work: [
-					{ project: "blackstone", did: "FastAPI endpoints, Snowflake-to-RDS migration on AWS Lambda, and role-based access for sensitive portfolio data." },
-					{ project: "fundaai", did: "FastAPI and Go services: the store, device auth, automatic updates, the local cache and the offline queue." },
-					{ project: "vial", did: "Document extraction pipeline: PDF parsing, fields extracted against fixed schemas, validation before API handoff." },
-					{ project: "pair", did: "Django backend with a Redis waiting room that matches two people, voice calls and live shared code." },
-					{ project: "daggerverse", did: "Reusable pipeline modules: bank data in, categories and advice out by SMS." },
-					{ project: "adalchemy", did: "Each business joins an SQS queue, research runs in AWS Lambda, results land in MongoDB." },
+					{
+						project: "blackstone",
+						did: "Debugged AWS costs and reduced them by indexing and refactoring databases. Backed up data through Terraform so the system could be recovered after a failure.",
+					},
+					{
+						project: "fundaai",
+						did: "FastAPI and Go services for the store, device auth, automatic updates, the local cache and the offline queue, so tutors still run when the network is down.",
+					},
+					{
+						project: "vial",
+						did: "A pipeline that takes clinical-trial PDFs, parses each document, extracts fields against a fixed schema, validates the result, and hands clean JSON to the reporting API.",
+					},
+					{
+						project: "daggerverse",
+						did: "Reusable Dagger modules: bank transactions come in, AI sorts spending into categories, results are stored, and budgeting advice goes out by SMS. The same modules run on a laptop, in CI, or in the cloud.",
+					},
 				],
 			},
 			{
@@ -59,7 +76,7 @@ const INFO = {
 					"Going into someone else's system, finding where real users get stuck, proving the cause, and shipping the fix.",
 				tools: ["Issue mapping", "Repro tests", "C++", "Go", "Python", "TypeScript"],
 				work: [
-					{ project: "opensource", did: "Nine merged pull requests across GizmoSQL, GrowthBook, Dagger, OpenFn and Koza." },
+					{ project: "opensource", did: "Five merged pull requests across GrowthBook, Dagger, OpenFn and Koza." },
 				],
 			},
 		],
@@ -125,12 +142,15 @@ const INFO = {
 				problem:
 					"Consulting and investment teams pulled portfolio insight out of call transcripts by hand, into fragmented systems.",
 				system: [
-					"Call transcripts come in",
-					"AI workflows extract and classify the issues",
-					"The data is normalized into relational schemas",
-					"Role-based access decides who sees what",
-					"Teams get structured portfolio intelligence",
+					"Extract Zoom transcripts.",
+					"Summarize based on user context. Summarization goes through middleware that checks the user role and applies the right nuance, tested through reviews.",
+					"Extract issues and categorize them.",
+					"Validate the AI output against existing data to check accuracy.",
+					"An EventBridge timer sends emails through an SQS queue.",
+					"The automation generates the email content.",
+					"Middleware verifies the receiver's permissions before anything is sent.",
 				],
+				stack: ["FastAPI Python", "AI", "Terraform", "AWS", "Docker"],
 				metric: "6-figure",
 				value: "Six figures in estimated billable-hour savings, with consultants spending their time on decisions instead of data entry.",
 			},
@@ -159,12 +179,72 @@ const INFO = {
 				spring: "No internet at exam time",
 				problem:
 					"Students across Africa prepare for Grade 7, O Level and A Level exams, often with patchy internet.",
-				system: [
-					"The store keeps tutors installed and updated",
-					"While online, the cache pulls new questions for each subject",
-					"A small model on the laptop marks answers instantly",
-					"While offline, work waits in a queue",
-					"Back online, a larger model writes the deeper report",
+				modelTips: {
+					"local model": "DeepSeek R1 Distill 1.5B",
+					"online model": "DeepSeek R1 Distill 70B",
+				},
+				workflows: [
+					{
+						label: "A student wants a new AI Tutor",
+						steps: [
+							"Middleware checks the laptop against its hardware ID so only that machine can ask for software.",
+							"The subscription for that machine is checked. If it has lapsed, the store does not hand over a new tutor.",
+							"The laptop pings for 60 seconds to see if it is online.",
+							"The app store lists tutors that machine is allowed to get.",
+							"Download goes through middleware, then the tutor is installed on the laptop.",
+						],
+					},
+					{
+						label: "A student practices a question",
+						steps: [
+							"The laptop already has a local model for inference, so marking can happen on the machine.",
+							"The system pings for 60 seconds to see if the student is online.",
+							"If they are online, the online model runs.",
+							"If they are not, the local model marks the work on the laptop.",
+						],
+					},
+					{
+						label: "Apps update without interrupting the student",
+						steps: [
+							"Linux scripts run in the background and test whether an app needs an update.",
+							"The check stays off the student's session so the laptop saves compute.",
+							"When an update is needed, it is pulled through the store.",
+						],
+					},
+					{
+						label: "Check the student is still subscribed",
+						steps: [
+							"Middleware reads the laptop hardware ID.",
+							"That ID is checked against the active subscription.",
+							"If the subscription is not active, tutors that need a live licence do not run.",
+						],
+					},
+					{
+						label: "The local model is fine-tuned",
+						steps: [
+							"Marked student work is collected when the laptop is online.",
+							"That work is used to fine-tune the local model.",
+							"The updated model is distributed back to the laptop through the store.",
+						],
+					},
+				],
+				stack: [
+					"Python",
+					"PySide6",
+					"Electron",
+					"React",
+					"TypeScript",
+					"FastAPI",
+					"Go",
+					"PostgreSQL",
+					"SQLite",
+					"llama-cpp",
+					"Groq",
+					"Dagger",
+					"MongoDB",
+					"Firebase",
+					"Modal",
+					"Supabase",
 				],
 				metric: "Online or off",
 				value: "The same exam prep with or without internet. First student: my 12-year-old nephew in Zimbabwe, mentored weekly.",
@@ -179,17 +259,124 @@ const INFO = {
 				spring: "Works on my machine",
 				problem:
 					"Pipelines get rebuilt from scratch for every project, and run differently on every machine.",
-				system: [
-					"Bank transactions come in",
-					"AI sorts the spending into categories",
-					"The results are stored",
-					"AI writes budgeting advice",
-					"The advice goes out by SMS",
+				workflows: [
+					{
+						label: "A household wants weekly budgeting advice by SMS",
+						steps: [
+							"Tiller writes bank transactions from several accounts into a Google Sheet.",
+							"FetchSpreadsheetData pulls that sheet into JSON inside a container, with unchanged layers cached.",
+							"filterForNewTransactions drops any Transaction ID already stored in MongoDB.",
+							"categorizeExpenses sends batches to facebook/bart-large-mnli and assigns Grocery, Takeouts, and the rest of the household categories, resizing batches when Hugging Face rate limits hit.",
+							"writeToMongo upserts each categorized row by Transaction ID.",
+							"getFromMongo aggregates spend by week and category with Atlas Search.",
+							"getAdvice uses LangChain and OpenAI to write the note, stores conversation memory in MongoDB, and can rewrite the prompt from household feedback.",
+							"A parent module sends the SMS through TextBelt. GitHub Actions runs this every three days.",
+						],
+						links: [
+							{
+								label: "Watch the presentation",
+								url: "https://youtu.be/YxfW-TgOGkc",
+							},
+						],
+					},
+					{
+						label: "An investor wants stocks ranked against paying down debt",
+						steps: [
+							"GetStocks scrapes the S&P 500 list, pulls history from yfinance, and ranks symbols by average return in the sectors named.",
+							"StocksToMongo writes each stock as its own document.",
+							"CalculateTimeValue pulls CPI from FRED and compares the future value of paying down debt versus holding the same money in a stock, after inflation.",
+							"vcstockbrain calls GetStocks for Health Care, Information Technology, Financials and Energy.",
+						],
+						links: [
+							{
+								label: "Watch the presentation",
+								url: "https://youtu.be/YxfW-TgOGkc",
+							},
+						],
+					},
+					{
+						label: "A developer needs unit tests for a SvelteKit page",
+						steps: [
+							"The project is mounted into a container so the agent can read the src tree.",
+							"LangChain suggests unit tests against isolation, speed and naming, then refines those suggestions.",
+							"It writes TypeScript tests from the suggestions, with types and imports that match the tree.",
+							"The test file is exported to the host.",
+						],
+						links: [
+							{
+								label: "Watch the presentation",
+								url: "https://youtu.be/Gq7qiEZ450Y",
+							},
+						],
+					},
+					{
+						label: "Tests should pass the same on every machine",
+						steps: [
+							"The Node project is mounted into the project's Docker image.",
+							"npm install runs, then npm run test.",
+							"The same image is used locally and in CI, so a pass here is a pass everywhere.",
+						],
+						links: [
+							{
+								label: "Watch the presentation",
+								url: "https://youtu.be/Gq7qiEZ450Y",
+							},
+						],
+					},
+					{
+						label: "Research a business for ads",
+						steps: [
+							"ResearcherContainer calls a Modal agent that browses the company and groups users into personas.",
+							"The agent returns keywords and ad text.",
+							"MarketingAgent stores that output in MongoDB under the company name.",
+						],
+					},
 				],
-				metric: "Build once",
-				value: "Each step is a reusable module that gives the same result on a laptop, in CI or in the cloud. Swap a few blocks and the same pipeline writes unit tests.",
+				stack: ["Dagger", "Docker", "Python", "MongoDB"],
 				links: [
 					{ label: "View the modules", url: "https://github.com/EmmS21/daggerverse" },
+				],
+			},
+			{
+				id: "gizmodata",
+				title: "GizmoData",
+				industry: "Data and dev tools",
+				stack: ["C++"],
+				details: [
+					{
+						label: "Max sessions",
+						text: "A full server now refuses new clients with a clear retry error instead of falling over.",
+						url: "https://github.com/gizmodata/gizmosql/pull/185",
+					},
+					{
+						label: "Idle timeout",
+						text: "Quiet connections free their seat, but never while someone is still downloading results.",
+						url: "https://github.com/gizmodata/gizmosql/pull/186",
+					},
+					{
+						label: "Memory limit",
+						text: "Tests prove the memory limit reaches DuckDB, and unsafe values stop the server from starting.",
+						url: "https://github.com/gizmodata/gizmosql/pull/187",
+					},
+					{
+						label: "Secrets",
+						text: "On a shared server, no client can print the stored passwords.",
+						url: "https://github.com/gizmodata/gizmosql/pull/193",
+					},
+				],
+				links: [
+					{
+						label: "Revenue simulation",
+						url: "https://emms21.github.io/gizmosql-followup/",
+					},
+					{
+						label: "How GizmoData changes unit economics",
+						url: "https://www.linkedin.com/pulse/how-gizmosql-could-change-the-unit-economics-ai-analytics-sibanda-kiiqe/",
+					},
+					{
+						label: "Session limits and idle timeouts",
+						url: "https://gizmodata.com/blog/gizmosql-session-limits-idle-timeouts",
+					},
 				],
 			},
 			{
@@ -205,29 +392,9 @@ const INFO = {
 					"Prove the cause with a test before changing code",
 					"Fix it upstream",
 				],
-				metric: "9 merged",
-				value: "Nine pull requests merged in 2026, each one starting where a real user got stuck.",
+				metric: "5 merged",
+				value: "Five pull requests merged in 2026, each one starting where a real user got stuck.",
 				details: [
-					{
-						label: "GizmoSQL · max sessions",
-						text: "A full server now refuses new clients with a clear retry error instead of falling over.",
-						url: "https://github.com/gizmodata/gizmosql/pull/185",
-					},
-					{
-						label: "GizmoSQL · idle timeout",
-						text: "Quiet connections free their seat, but never while someone is still downloading results.",
-						url: "https://github.com/gizmodata/gizmosql/pull/186",
-					},
-					{
-						label: "GizmoSQL · memory limit",
-						text: "Tests prove the memory limit reaches DuckDB, and unsafe values stop the server from starting.",
-						url: "https://github.com/gizmodata/gizmosql/pull/187",
-					},
-					{
-						label: "GizmoSQL · secrets",
-						text: "On a shared server, no client can print the stored passwords.",
-						url: "https://github.com/gizmodata/gizmosql/pull/193",
-					},
 					{
 						label: "GrowthBook · experiments",
 						text: "Traced three Slack threads to one misunderstanding about when a user enters an experiment.",
@@ -255,7 +422,6 @@ const INFO = {
 					},
 				],
 				links: [
-					{ label: "GizmoSQL map", url: "https://emms21.github.io/gizmosql-universe/gizmoSQL/" },
 					{ label: "GrowthBook map", url: "https://emms21.github.io/united-universes/" },
 					{ label: "Dagger map", url: "https://emms21.github.io/dagger-universe/" },
 				],

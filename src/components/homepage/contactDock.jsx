@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect } from "react";
 
+import { warm } from "./warmPanel";
 import "./styles/contactDock.css";
 
 const loadOpen = () => import("./contactDockOpen");
@@ -29,8 +30,8 @@ const ContactDock = ({ open, onToggle }) => {
 				type="button"
 				className="dock-toggle"
 				onClick={() => onToggle(!open)}
-				onPointerEnter={loadOpen}
-				onFocus={loadOpen}
+				onPointerEnter={() => warm(loadOpen)}
+				onFocus={() => warm(loadOpen)}
 				aria-expanded={open}
 				aria-controls="dock-menu"
 			>
