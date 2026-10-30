@@ -1,11 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 
 import Portal from "./portal";
 import Hummingbird from "./hummingbird";
-import WaterCanvas from "./waterCanvas";
 import buildLayout, { hitPath } from "./riverLayout";
 
 import "./styles/riverMap.css";
+
+const loadWater = () => import("./waterCanvas");
+const WaterCanvas = lazy(loadWater);
+loadWater();
 
 const TALL_QUERY = "(max-width: 760px), (max-aspect-ratio: 4/5)";
 
@@ -28,12 +40,11 @@ const ZOOM_TALL = 1.8;
 
 const RiverMap = ({
 	homepage,
-	phase,
 	motion,
 	zoomSkill,
 	onOpenSkill,
 	onOpenHistory,
-	onOpenContact,
+	children,
 }) => {
 	const { skills } = homepage;
 	const tall = useTallMode();
@@ -42,16 +53,38 @@ const RiverMap = ({
 		[tall, skills.length]
 	);
 	const stageRef = useRef(null);
+	const poseRef = useRef({ px: 0, py: 0 });
+	const bangRef = useRef(null);
 	const [stageWidth, setStageWidth] = useState(0);
 	const [activeSkill, setActiveSkill] = useState(null);
 	const [noWebGL, setNoWebGL] = useState(false);
+	const [waterOn, setWaterOn] = useState(false);
 	const onUnsupported = useCallback(() => setNoWebGL(true), []);
 
 	useEffect(() => {
+		let cancelled = false;
+		let second = 0;
+		const first = requestAnimationFrame(() => {
+			second = requestAnimationFrame(() => {
+				if (!cancelled) setWaterOn(true);
+			});
+		});
+		return () => {
+			cancelled = true;
+			cancelAnimationFrame(first);
+			cancelAnimationFrame(second);
+		};
+	}, []);
+
+	useLayoutEffect(() => {
+		const el = stageRef.current;
+		if (!el) return undefined;
+		const apply = (width) => setStageWidth(width);
+		apply(el.getBoundingClientRect().width);
 		const observer = new ResizeObserver(([entry]) =>
-			setStageWidth(entry.contentRect.width)
+			apply(entry.contentRect.width)
 		);
-		observer.observe(stageRef.current);
+		observer.observe(el);
 		return () => observer.disconnect();
 	}, []);
 
@@ -72,7 +105,6 @@ const RiverMap = ({
 		onClick: () => onOpenSkill(skill.id),
 	});
 
-	const revealed = phase === "flow" || phase === "ready";
 	const portalScale = (stageWidth * layout.portal.size) / 320;
 
 	// Zooms the map into the open skill's dock. On phones the map is taller
@@ -89,25 +121,33 @@ const RiverMap = ({
 
 	return (
 		<section
-			className={`river river-${layout.mode} river-phase-${phase} ${
+			className={`river river-${layout.mode} ${
 				activeSkill ? "river-focused" : ""
 			} ${noWebGL ? "river-flat" : ""} ${zoom ? "river-zoomed" : ""}`}
 			aria-label="Skills map"
 		>
 			<div
+				className="river-frame"
+				style={{ aspectRatio: `${layout.W} / ${layout.H}` }}
+			>
+			<div
 				className="river-stage"
 				ref={stageRef}
-				style={{ aspectRatio: `${layout.W} / ${layout.H}`, ...zoom }}
+				style={zoom || undefined}
 			>
-				{!noWebGL && (
-					<WaterCanvas
-						layout={layout}
-						lit={lit}
-						focus={Boolean(activeSkill)}
-						revealed={revealed}
-						motion={motion}
-						onUnsupported={onUnsupported}
-					/>
+				{!noWebGL && waterOn && (
+					<Suspense fallback={null}>
+						<WaterCanvas
+							layout={layout}
+							lit={lit}
+							focus={Boolean(activeSkill)}
+							revealed
+							motion={motion}
+							poseRef={poseRef}
+							bangRef={bangRef}
+							onUnsupported={onUnsupported}
+						/>
+					</Suspense>
 				)}
 
 				<svg
@@ -148,7 +188,7 @@ const RiverMap = ({
 						"--portal-scale": portalScale || 0,
 					}}
 				>
-					<Portal />
+					<Portal poseRef={poseRef} bangRef={bangRef} />
 				</div>
 
 				<Hummingbird
@@ -162,7 +202,7 @@ const RiverMap = ({
 
 				<p
 					className="river-name"
-					style={{ top: pct(layout.portal.y - (tall ? 170 : 205), layout.H) }}
+					style={{ top: pct(layout.portal.y - (tall ? 178 : 228), layout.H) }}
 				>
 					{homepage.tagline}
 				</p>
@@ -182,32 +222,15 @@ const RiverMap = ({
 								width: pct(layout.dock.w, layout.W),
 								height: pct(layout.dock.h, layout.H),
 								"--skill": skill.color,
-								"--delay": `${i * 80}ms`,
 							}}
 							{...skillHandlers(skill)}
 						>
 							<span className="river-skill-label">{skill.label}</span>
-							<span className="river-skill-tools">
-								{skill.tools.slice(0, 3).join(" · ")}
-							</span>
 						</button>
 					);
 				})}
-
-				<div
-					className="river-shore"
-					style={{ top: pct(layout.oceanY - (tall ? 10 : 90), layout.H) }}
-				>
-					<p className="river-pitch">{homepage.pitch}</p>
-					<ul className="river-proof">
-						{homepage.proof.map((item) => (
-							<li key={item}>{item}</li>
-						))}
-					</ul>
-					<button type="button" className="river-shore-btn" onClick={onOpenContact}>
-						Work with me
-					</button>
-				</div>
+			</div>
+			{children}
 			</div>
 		</section>
 	);

@@ -33,32 +33,6 @@
 	transform: rotate(15deg);
 }
 
-.zen-ripples {
-	position: absolute;
-	inset: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	pointer-events: none;
-}
-
-.zen-ripple {
-	position: absolute;
-	width: 220px;
-	height: 220px;
-	border: 1px solid rgba(90, 158, 150, 0.12);
-	border-radius: 50%;
-	animation: zen-ripple 6s ease-out infinite;
-}
-
-.zen-ripple:nth-child(2) {
-	animation-delay: 2s;
-}
-
-.zen-ripple:nth-child(3) {
-	animation-delay: 4s;
-}
-
 .zen-orbs {
 	position: absolute;
 	inset: -20px;
@@ -187,17 +161,6 @@
 	}
 }
 
-@keyframes zen-ripple {
-	0% {
-		transform: scale(0.85);
-		opacity: 0.5;
-	}
-	100% {
-		transform: scale(1.6);
-		opacity: 0;
-	}
-}
-
 @keyframes zen-enso-drift {
 	0%,
 	100% {
@@ -245,9 +208,11 @@
 }
 
 .homepage-photo-frame {
-	transform: perspective(700px) rotateX(calc(var(--py) * -12deg))
-		rotateY(calc(var(--px) * 12deg));
-	transition: transform var(--follow);
+	transform: perspective(700px)
+		translate(calc(var(--px) * 14px), calc(var(--py) * 12px))
+		rotateX(calc(var(--py) * -14deg))
+		rotateY(calc(var(--px) * 14deg))
+		rotateZ(calc(var(--px) * 5deg));
 }
 
 .homepage-photo-ring {
@@ -271,9 +236,8 @@
 }
 
 .homepage-photo {
-	transform: translate(calc(var(--px) * -8px), calc(var(--py) * -8px))
+	transform: translate(calc(var(--px) * -6px), calc(var(--py) * -6px))
 		scale(calc(1 + var(--hover) * 0.08));
-	transition: transform var(--follow);
 }
 
 .homepage-photo-glow {
@@ -283,11 +247,6 @@
 
 .zen-enso {
 	translate: calc(var(--px) * 10px) calc(var(--py) * 10px);
-	transition: translate var(--follow);
-}
-
-.zen-ripples {
-	translate: calc(var(--px) * 6px) calc(var(--py) * 6px);
 	transition: translate var(--follow);
 }
 
@@ -340,7 +299,6 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.zen-enso,
-	.zen-ripple,
 	.zen-orb,
 	.zen-mist,
 	.homepage-photo-glow {

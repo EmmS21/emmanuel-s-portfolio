@@ -170,9 +170,27 @@ const moor = (r, kind, dock, side) => {
 	};
 };
 
+// Portrait ring radius as a share of the portal's width (a 226px ring in a 320px portal).
+const PHOTO = 0.353;
+// The sea's coast sits past the river sources, so the rivers flow out of it.
+const COAST = 1.85;
+
 const withCrafts = (layout) => {
 	const dock = DOCK[layout.mode];
-	const crafts = layout.labels.flatMap((label, i) => {
+	const { portal } = layout;
+	const inner = portal.size * layout.W * PHOTO;
+	const sea = {
+		kind: "sea",
+		x: portal.x,
+		y: portal.y,
+		tx: 0,
+		ty: 1,
+		w: inner * COAST * 2,
+		h: inner * COAST * 2,
+		inner,
+		river: -1,
+	};
+	const docks = layout.labels.flatMap((label, i) => {
 		const river = layout.rivers.findIndex((r) => r.skill === i);
 		const kind = MOORED[i % MOORED.length];
 		const tied = kind && moor(layout.rivers[river], kind, dock, i % 2 ? 1 : -1);
@@ -181,7 +199,7 @@ const withCrafts = (layout) => {
 			...(tied ? [{ ...tied, river }] : []),
 		];
 	});
-	return { ...layout, dock, crafts };
+	return { ...layout, dock, crafts: [sea, ...docks] };
 };
 
 const buildLayout = (mode, count) => withCrafts(mode === "tall" ? tall(count) : wide(count));

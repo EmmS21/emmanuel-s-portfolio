@@ -3,6 +3,7 @@
 .river {
 	position: relative;
 	min-height: 100vh;
+	max-height: 100vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -10,17 +11,23 @@
 	background: var(--gradient-ocean);
 }
 
+.river-frame {
+	position: relative;
+	width: min(100%, 160vh);
+	max-height: 100%;
+}
+
 .river-stage {
 	position: relative;
 	container-type: inline-size;
-	width: min(100vw, 160vh);
+	width: 100%;
+	height: 100%;
 	transition: transform 0.9s cubic-bezier(0.6, 0, 0.2, 1);
 }
 
 /* Zoomed into one dock: everything but the map steps aside. */
 .river-zoomed .river-skill,
 .river-zoomed .river-name,
-.river-zoomed .river-shore,
 .river-zoomed .bird {
 	opacity: 0 !important;
 	pointer-events: none;
@@ -29,10 +36,12 @@
 
 .river-tall {
 	display: block;
+	max-height: none;
+	overflow: visible;
 	padding-bottom: 72px;
 }
 
-.river-tall .river-stage {
+.river-tall .river-frame {
 	width: 100%;
 	max-width: 560px;
 	margin: 0 auto;
@@ -91,11 +100,6 @@
 		transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
 }
 
-.river-phase-closed .river-portal .homepage-photo-sanctuary {
-	opacity: 0;
-	transform: scale(0.55);
-}
-
 .river-name {
 	position: absolute;
 	left: 50%;
@@ -107,11 +111,6 @@
 	color: var(--accent-warm);
 	white-space: nowrap;
 	z-index: 3;
-	opacity: 0;
-	transition: opacity 0.8s ease 0.6s;
-}
-
-.river:not(.river-phase-closed) .river-name {
 	opacity: 0.9;
 }
 
@@ -137,29 +136,15 @@
 	border: none;
 	cursor: pointer;
 	z-index: 3;
-	opacity: 0;
-	transform: translate(-50%, -50%) translateY(12px);
-	transition:
-		opacity 0.5s ease var(--delay),
-		transform 0.5s cubic-bezier(0.2, 1, 0.3, 1) var(--delay),
-		text-shadow 0.25s ease;
-}
-
-.river-phase-ready .river-skill {
 	opacity: 1;
 	transform: translate(-50%, -50%);
+	transition: text-shadow 0.25s ease;
 }
 
 .river-skill-label {
 	font-family: var(--secondary-font);
 	font-size: 1.1cqw;
 	line-height: 1.15;
-}
-
-.river-skill-tools {
-	font-size: 0.72cqw;
-	letter-spacing: 0.04em;
-	color: #d6c6a6;
 }
 
 .river-skill::before {
@@ -195,87 +180,8 @@
 	border-radius: 14px;
 }
 
-.river-phase-ready.river-focused .river-skill:not(.is-lit) {
+.river-focused .river-skill:not(.is-lit) {
 	opacity: 0.45;
-}
-
-/* ---- Shore ---- */
-
-.river-shore {
-	position: absolute;
-	left: 50%;
-	width: 60cqw;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.9cqw;
-	transform: translateX(-50%);
-	text-align: center;
-	z-index: 4;
-	opacity: 0;
-	transition: opacity 0.6s ease 0.5s;
-}
-
-.river-pitch {
-	margin: 0;
-	font-family: var(--secondary-font);
-	font-size: 1.55cqw;
-	line-height: 1.35;
-	color: var(--primary-color);
-	text-shadow: 0 2px 18px rgba(0, 0, 0, 0.9);
-}
-
-.river-proof {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 0.4cqw 1.6cqw;
-	margin: -0.2cqw 0 0.2cqw;
-	padding: 0;
-	list-style: none;
-	font-size: 0.82cqw;
-	letter-spacing: 0.03em;
-	color: var(--accent-warm);
-}
-
-.river-proof li {
-	display: flex;
-	align-items: center;
-	gap: 0.6cqw;
-}
-
-.river-proof li + li::before {
-	content: "";
-	width: 0.3cqw;
-	height: 0.3cqw;
-	border-radius: 50%;
-	background: var(--tertiary-color);
-}
-
-.river-shore-btn {
-	padding: 0.6cqw 1.6cqw;
-	font-family: var(--secondary-font);
-	font-size: 0.9cqw;
-	letter-spacing: 0.04em;
-	color: #e8e4dc;
-	background: rgba(61, 122, 114, 0.85);
-	border: 1px solid rgba(90, 158, 150, 0.3);
-	border-radius: 999px;
-	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-	cursor: pointer;
-	transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
-}
-
-.river-shore-btn:hover,
-.river-shore-btn:focus-visible {
-	background: rgba(61, 122, 114, 1);
-	transform: translateY(-2px);
-	box-shadow: 0 8px 32px rgba(61, 122, 114, 0.3);
-	outline: none;
-}
-
-.river-phase-ready .river-shore {
-	opacity: 1;
 }
 
 /* ---- Phone: one river runs down the page ---- */
@@ -293,38 +199,9 @@
 	font-size: 4.2cqw;
 }
 
-.river-tall .river-skill-tools {
-	font-size: 3cqw;
-}
-
 .river-tall .river-skill::before {
 	width: 1.8cqw;
 	height: 1.8cqw;
-}
-
-.river-tall .river-shore {
-	width: 88cqw;
-	gap: 3cqw;
-}
-
-.river-tall .river-pitch {
-	font-size: 5.4cqw;
-}
-
-.river-tall .river-proof {
-	flex-direction: column;
-	align-items: center;
-	gap: 1.4cqw;
-	font-size: 3.4cqw;
-}
-
-.river-tall .river-proof li + li::before {
-	display: none;
-}
-
-.river-tall .river-shore-btn {
-	padding: 2.4cqw 6cqw;
-	font-size: 3.8cqw;
 }
 
 @media (prefers-reduced-motion: reduce) {

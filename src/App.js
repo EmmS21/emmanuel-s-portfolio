@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import ReactGA from "react-ga4";
 
 import Homepage from "./pages/homepage";
 import Notfound from "./pages/404";
@@ -10,9 +9,14 @@ import "./app.css";
 
 function App() {
 	useEffect(() => {
-		if (TRACKING_ID !== "") {
-			ReactGA.initialize(TRACKING_ID);
-		}
+		if (TRACKING_ID === "") return undefined;
+		let cancelled = false;
+		import("react-ga4").then((mod) => {
+			if (!cancelled) mod.default.initialize(TRACKING_ID);
+		});
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	return (

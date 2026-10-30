@@ -1,6 +1,8 @@
 export const MAX_RIVERS = 8;
 // How many recent cursor samples the water remembers.
 export const TRAIL = 12;
+// Pushes from the portrait. Live several seconds so a wave can reach a dock.
+export const IMPULSE = 8;
 // Share of each strip's half-width that is water; the rest is wet bank.
 export const WATER = 0.5;
 
@@ -8,6 +10,7 @@ export const WATER = 0.5;
 // t runs 0..1 from source to mouth, (tx, ty) points downstream.
 export const buildStrips = (rivers) => {
 	const out = { pos: [], side: [], along: [], t: [], index: [], tan: [], half: [] };
+	const mouth = new Float32Array(MAX_RIVERS);
 	rivers.forEach((r, ri) => {
 		const n = r.points.length;
 		let distance = 0;
@@ -50,24 +53,29 @@ export const buildStrips = (rivers) => {
 				out.half.push(v.half);
 			});
 		}
+		mouth[ri] = distance;
 	});
 	return Object.fromEntries([
 		["count", out.side.length],
+		["mouth", mouth],
 		...Object.entries(out).map(([key, list]) => [key, new Float32Array(list)]),
 	]);
 };
 
-const KINDS = { dock: 0, boat: 1, raft: 2 };
+const KINDS = { dock: 0, boat: 1, raft: 2, sea: 3 };
 // Room around each craft for its shadow and ripples.
 const PAD = 16;
 
 // One quad per craft. local is (across, downstream) in map units from the
-// craft's centre; shape is (kind, seed, river index, rope length).
+// craft's centre; shape is (kind, seed, river index or -1, rope length or
+// the portrait radius for the sea).
 export const buildCrafts = (crafts) => {
 	const out = { pos: [], local: [], size: [], shape: [] };
 	crafts.forEach((c, i) => {
-		const hx = c.w / 2 + PAD;
-		const hy = c.h / 2 + c.rope + PAD;
+		const rope = c.rope || 0;
+		const pad = c.kind === "dock" ? 28 : PAD;
+		const hx = c.w / 2 + pad;
+		const hy = c.h / 2 + rope + pad;
 		[
 			[-1, -1],
 			[1, -1],
@@ -81,7 +89,7 @@ export const buildCrafts = (crafts) => {
 			out.pos.push(c.x + c.ty * lx + c.tx * ly, c.y - c.tx * lx + c.ty * ly);
 			out.local.push(lx, ly);
 			out.size.push(c.w, c.h);
-			out.shape.push(KINDS[c.kind], i, c.river, c.rope);
+			out.shape.push(KINDS[c.kind], i, c.river, c.kind === "sea" ? c.inner : rope);
 		});
 	});
 	return Object.fromEntries([

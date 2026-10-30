@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
-import { MAX_RIVERS, TRAIL, sizeCanvas } from "./riverStrips";
-import { createGlWater, drawGround } from "./waterGl";
+import { MAX_RIVERS, TRAIL, IMPULSE, sizeCanvas } from "./riverStrips";
+import { createGlWater } from "./waterGl";
 
 const MAX_PACE = 900;
 
@@ -45,20 +45,171 @@ const createTrail = () => {
 	};
 };
 
-const WaterCanvas = ({ layout, lit, focus, revealed, motion, onUnsupported }) => {
-	const groundRef = useRef(null);
-	const waterRef = useRef(null);
-	const state = useRef({ lit, focus, revealed, motion });
-	state.current = { lit, focus, revealed, motion };
+const between = (low, high) => low + Math.random() * (high - low);
+
+// Pushes from the portrait. Newest first. Ages in seconds.
+const createImpulses = (portal) => {
+	const list = new Float32Array(IMPULSE * 4);
+	const ages = new Float32Array(IMPULSE).fill(100);
+	const pose = new Float32Array(4);
+	let lastPx = 0;
+	let lastPy = 0;
+	let lastAt = 0;
+	let lastSpawn = 0;
+	const spawn = (x, y, power) => {
+		list.copyWithin(4, 0, (IMPULSE - 1) * 4);
+		ages.copyWithin(1, 0, IMPULSE - 1);
+		list.set([x, y, power, 0], 0);
+		ages[0] = 0;
+	};
+	return {
+		list,
+		ages,
+		pose,
+		setPose: (px, py) => {
+			pose[0] = px;
+			pose[1] = py;
+		},
+		bang: (power, dx, dy) => {
+			spawn(portal.x + dx * 42, portal.y + dy * 42, Math.max(0.7, power * 1.35));
+			lastSpawn = performance.now();
+		},
+		update: (now, dt) => {
+			if (lastAt) {
+				const idt = Math.max((now - lastAt) / 1000, 0.016);
+				pose[2] = (pose[0] - lastPx) / idt;
+				pose[3] = (pose[1] - lastPy) / idt;
+			}
+			lastPx = pose[0];
+			lastPy = pose[1];
+			lastAt = now;
+			const speed = Math.hypot(pose[2], pose[3]);
+			if (speed > 0.45 && now - lastSpawn > 70) {
+				const n = speed || 1;
+				spawn(
+					portal.x + (pose[2] / n) * 38,
+					portal.y + (pose[3] / n) * 38,
+					Math.min(0.45 + speed * 0.4, 1.35)
+				);
+				lastSpawn = now;
+			}
+			for (let i = 0; i < IMPULSE; i++) ages[i] += dt;
+		},
+	};
+};
+
+// One moving patch of wind at a time, plus independent rain.
+// `out` is (wind, direction, falling rain, lightning). `level` is river fullness.
+// Rain and water level are separate clocks: drops stop first, the flood recedes later.
+const createWeather = (view) => {
+	const out = new Float32Array([0, 1, 0, 0]);
+	const gust = new Float32Array(4);
+	const level = new Float32Array(1);
+	let puff = null;
+	let nextPuff = between(2, 7);
+	let shower = { end: 0, next: between(6, 16), power: 0, thunder: false, flashAt: 1e9, flashes: 0 };
+	return {
+		out,
+		gust,
+		level,
+		update: (t, dt) => {
+			if (!puff && t > nextPuff) {
+				const fromLeft = Math.random() < 0.5;
+				puff = {
+					x: fromLeft ? -90 : view.W + 90,
+					y: between(0.1, 0.82) * view.H,
+					vx: (fromLeft ? 1 : -1) * between(160, 380),
+					vy: between(-110, 110),
+					radius: between(150, 280),
+					peak: between(0.4, 1),
+					born: t,
+					life: between(1.6, 4.8),
+					wobble: between(0.7, 2.4),
+				};
+				out[1] = fromLeft ? 1 : -1;
+				nextPuff = t + puff.life + (Math.random() < 0.28 ? between(0.5, 2) : between(5, 26));
+			}
+			if (puff) {
+				const age = (t - puff.born) / puff.life;
+				if (age >= 1) {
+					puff = null;
+				} else {
+					puff.x += puff.vx * dt;
+					puff.y += puff.vy * dt + Math.sin(t * puff.wobble) * 55 * dt;
+					puff.vy += Math.sin(t * 0.65 + puff.wobble) * 40 * dt;
+					const swell = Math.sin(age * Math.PI);
+					const flicker = 0.72 + 0.28 * Math.sin(t * puff.wobble * 5.5);
+					const power = puff.peak * swell * flicker;
+					out[0] = power;
+					gust.set([puff.x, puff.y, puff.radius, power]);
+				}
+			}
+			if (!puff) {
+				out[0] += (0 - out[0]) * Math.min(dt * 2.2, 1);
+				gust[3] += (0 - gust[3]) * Math.min(dt * 3, 1);
+			}
+			if (t > shower.next) {
+				const roll = Math.random();
+				const drizzle = roll < 0.42;
+				const downpour = roll > 0.8;
+				const power = drizzle
+					? between(0.12, 0.3)
+					: downpour
+						? between(0.8, 1)
+						: between(0.35, 0.65);
+				const life = drizzle
+					? between(7, 16)
+					: downpour
+						? between(16, 32)
+						: between(10, 20);
+				const thunder = downpour ? Math.random() < 0.8 : !drizzle && Math.random() < 0.18;
+				shower = {
+					end: t + life,
+					next: t + life + between(14, 50),
+					power,
+					thunder,
+					flashAt: thunder ? t + between(1.5, 6) : 1e9,
+					flashes: 0,
+				};
+			}
+			const falling = t < shower.end ? shower.power : 0;
+			out[2] += (falling - out[2]) * Math.min(dt * 0.55, 1);
+			if (falling >= level[0]) {
+				level[0] += (falling - level[0]) * Math.min(dt * 0.18, 1);
+			} else {
+				const drain = 0.022 + 0.03 * (1 - level[0]);
+				level[0] += (falling - level[0]) * Math.min(dt * drain, 1);
+			}
+			let flash = 0;
+			if (shower.thunder && t < shower.end && t >= shower.flashAt) {
+				const a = t - shower.flashAt;
+				if (a < 0.05) flash = 1;
+				else if (a > 0.08 && a < 0.14) flash = 0.7;
+				else if (a > 0.2 && a < 0.25) flash = 0.35;
+				if (a > 0.32) {
+					shower.flashes += 1;
+					shower.flashAt =
+						shower.flashes < 3 && Math.random() < 0.5
+							? t + between(2, 9)
+							: shower.end + 1;
+				}
+			}
+			out[3] = flash;
+		},
+	};
+};
+
+const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, onUnsupported }) => {
+	const canvasRef = useRef(null);
+	const state = useRef({ lit, focus, revealed, motion, poseRef, bangRef });
+	state.current = { lit, focus, revealed, motion, poseRef, bangRef };
 	const redraw = useRef(null);
 
 	useEffect(() => {
-		const canvas = waterRef.current;
+		const canvas = canvasRef.current;
 		let water;
-		let paintGround;
 		try {
-			paintGround = drawGround(groundRef.current, layout);
-			water = paintGround && createGlWater(canvas, layout);
+			water = createGlWater(canvas, layout);
 		} catch (error) {
 			water = null;
 		}
@@ -75,6 +226,9 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, onUnsupported }) =>
 		};
 
 		const trail = createTrail();
+		const weather = createWeather(layout);
+		const forces = createImpulses(layout.portal);
+		if (state.current.bangRef) state.current.bangRef.current = forces.bang;
 		const stage = canvas.parentElement;
 		const onMove = (event) => {
 			const rect = canvas.getBoundingClientRect();
@@ -90,7 +244,14 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, onUnsupported }) =>
 		let last = performance.now();
 		const start = last;
 
+		const stop = () => {
+			cancelAnimationFrame(frame);
+			frame = 0;
+		};
+
 		const render = (now) => {
+			frame = 0;
+			if (document.hidden) return;
 			const { lit: litNow, focus: focusNow, revealed: open, motion: moving } = state.current;
 			const dt = Math.min((now - last) / 1000, 0.1);
 			last = now;
@@ -103,10 +264,23 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, onUnsupported }) =>
 			const target = open ? 1 : 0;
 			current.reveal = moving ? Math.min(current.reveal + dt / 1.1, target) : target;
 
-			if (sizeCanvas(canvas, dpr)) paintGround();
+			if (sizeCanvas(canvas, dpr)) water.paintGround();
 			trail.update(now);
+			const time = moving ? (now - start) / 1000 : 4;
+			if (moving) weather.update(time, dt);
+			const poseHold = state.current.poseRef;
+			if (poseHold && poseHold.current) {
+				forces.setPose(poseHold.current.px, poseHold.current.py);
+			}
+			if (moving) forces.update(now, dt);
 			water.draw({
-				time: moving ? (now - start) / 1000 : 4,
+				time,
+				weather: weather.out,
+				gust: weather.gust,
+				level: weather.level,
+				pose: forces.pose,
+				impulse: forces.list,
+				impAge: forces.ages,
 				reveal: current.reveal,
 				focus: current.focus,
 				lit: current.lit,
@@ -117,22 +291,37 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, onUnsupported }) =>
 			if (moving) frame = requestAnimationFrame(render);
 		};
 
+		const play = () => {
+			if (document.hidden || frame) return;
+			last = performance.now();
+			frame = requestAnimationFrame(render);
+		};
+
 		redraw.current = () => {
 			if (!state.current.motion) render(performance.now());
 		};
-		paintGround();
-		frame = requestAnimationFrame(render);
+		sizeCanvas(canvas, dpr);
+		water.paintGround();
+		play();
+		const onVis = () => {
+			if (document.hidden) stop();
+			else play();
+		};
+		document.addEventListener("visibilitychange", onVis);
 
 		const observer = new ResizeObserver(() => {
-			if (sizeCanvas(canvas, dpr)) paintGround();
+			sizeCanvas(canvas, dpr);
+			water.paintGround();
 			redraw.current();
 		});
 		observer.observe(canvas);
 
 		return () => {
-			cancelAnimationFrame(frame);
+			stop();
+			document.removeEventListener("visibilitychange", onVis);
 			observer.disconnect();
 			stage.removeEventListener("pointermove", onMove);
+			if (state.current.bangRef) state.current.bangRef.current = null;
 			water.destroy();
 			redraw.current = null;
 		};
@@ -142,12 +331,7 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, onUnsupported }) =>
 		if (redraw.current) redraw.current();
 	}, [lit, focus, revealed]);
 
-	return (
-		<>
-			<canvas ref={groundRef} className="river-canvas" aria-hidden="true" />
-			<canvas ref={waterRef} className="river-canvas" aria-hidden="true" />
-		</>
-	);
+	return <canvas ref={canvasRef} className="river-canvas" aria-hidden="true" />;
 };
 
 export default WaterCanvas;

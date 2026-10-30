@@ -18,16 +18,11 @@ const INFO = {
 	homepage: {
 		tagline: "Emmanuel Sibanda",
 		pitch: "I understand business problems and the users behind them, then build software and automation that grow revenue and cut costs.",
-		proof: [
-			"Six figures in billable hours saved at Blackstone",
-			"10+ hours a week back at Vial",
-			"9 fixes merged upstream in open source",
-		],
 
 		skills: [
 			{
 				id: "product",
-				label: "Product Engineering",
+				label: "Product Engineer",
 				color: "#e2b878",
 				summary:
 					"Turning a business problem into a product people use: find where the work breaks, design the system, ship it.",
@@ -41,50 +36,24 @@ const INFO = {
 				],
 			},
 			{
-				id: "ai",
-				label: "AI Engineering",
-				color: "#7fd1c4",
-				summary:
-					"Agents and models placed where they work best: a small model on the device, a larger one in the cloud.",
-				tools: ["LLM agents", "RAG", "llama.cpp", "Groq", "Local + cloud inference"],
-				work: [
-					{ project: "fundaai", did: "A small local model marks answers offline. Online, a larger model writes the full report. A RAG pipeline keeps the curriculum searchable offline." },
-					{ project: "adalchemy", did: "An agent researches each customer type, then writes keywords and ad variations." },
-					{ project: "blackstone", did: "AI workflows that extract, classify and normalize the issues raised in call transcripts." },
-					{ project: "daggerverse", did: "AI sorts bank spending into categories and writes budgeting advice." },
-				],
-			},
-			{
 				id: "backend",
-				label: "Backend Engineering",
+				label: "Backend and Infrastructure",
 				color: "#6fb6e8",
 				summary:
-					"APIs, services and storage that keep working when the network does not.",
-				tools: ["FastAPI", "Go", "Django", "PostgreSQL", "MongoDB", "Redis"],
+					"APIs, pipelines and storage that keep working when the network does not.",
+				tools: ["FastAPI", "Go", "AWS Lambda", "PostgreSQL", "Dagger", "Snowflake"],
 				work: [
-					{ project: "blackstone", did: "FastAPI endpoints, relational schemas and role-based access control for sensitive portfolio data." },
-					{ project: "fundaai", did: "FastAPI and Go services: the store, device auth middleware, automatic updates, the local cache and the offline queue." },
-					{ project: "pair", did: "Django backend with a Redis waiting room that matches two people, voice calls and live shared code." },
-				],
-			},
-			{
-				id: "data",
-				label: "Data Engineering",
-				color: "#8fd694",
-				summary:
-					"Pipelines that run the same on a laptop, in CI and in the cloud, and data that arrives complete.",
-				tools: ["Dagger", "AWS Lambda", "Snowflake", "RDS", "SQS", "MongoDB"],
-				work: [
-					{ project: "blackstone", did: "Snowflake-to-RDS migration pipelines on AWS Lambda, with paginated transfers and dependency-aware table order." },
+					{ project: "blackstone", did: "FastAPI endpoints, Snowflake-to-RDS migration on AWS Lambda, and role-based access for sensitive portfolio data." },
+					{ project: "fundaai", did: "FastAPI and Go services: the store, device auth, automatic updates, the local cache and the offline queue." },
 					{ project: "vial", did: "Document extraction pipeline: PDF parsing, fields extracted against fixed schemas, validation before API handoff." },
-					{ project: "daggerverse", did: "Reusable pipeline modules: bank data in, categories and advice out by SMS. Swap a few blocks and it writes unit tests." },
+					{ project: "pair", did: "Django backend with a Redis waiting room that matches two people, voice calls and live shared code." },
+					{ project: "daggerverse", did: "Reusable pipeline modules: bank data in, categories and advice out by SMS." },
 					{ project: "adalchemy", did: "Each business joins an SQS queue, research runs in AWS Lambda, results land in MongoDB." },
-					{ project: "fundaai", did: "On a Modal schedule, curriculum PDFs from Google Drive are chunked into compressed embeddings, and the cache pulls new questions for offline study." },
 				],
 			},
 			{
 				id: "forward",
-				label: "Forward Deployed Engineering",
+				label: "Forward Deployed | Solutions Engineer",
 				color: "#c9a0e8",
 				summary:
 					"Going into someone else's system, finding where real users get stuck, proving the cause, and shipping the fix.",
@@ -130,13 +99,13 @@ const INFO = {
 				dates: "Jan 2019 – Dec 2019",
 				summary:
 					"Python and SQL across NoSQL and PostgreSQL, building the dashboards sales and marketing used to measure performance.",
-				skills: ["data"],
+				skills: ["backend"],
 			},
 			{
 				org: "Google",
 				role: "Data Analyst Intern",
 				dates: "2017",
-				skills: ["data"],
+				skills: ["backend"],
 			},
 			{
 				org: "University of KwaZulu-Natal",

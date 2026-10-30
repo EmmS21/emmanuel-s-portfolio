@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 import "./styles/portal.css";
 
@@ -7,6 +7,8 @@ const clamp = (v) => Math.max(-1, Math.min(1, v));
 const SHAKE_STEPS = 32;
 // Holding this long gives the strongest shake.
 const FULL_CHARGE_MS = 1500;
+const STIFF = 16;
+const DAMP = 5.2;
 
 // A damped oscillation: pushed away from the click, then rocking back to rest.
 // strength is how far from the centre (0..1); power is how long it was held (0..1).
@@ -23,24 +25,103 @@ const shakeFrames = (dx, dy, strength, power) => {
 	});
 };
 
-const Portal = () => {
+const Portal = ({ poseRef, bangRef }) => {
 	const ref = useRef(null);
 	const ringRef = useRef(null);
 	const press = useRef(null);
+	const body = useRef({
+		px: 0,
+		py: 0,
+		vx: 0,
+		vy: 0,
+		tx: 0,
+		ty: 0,
+		hover: 0,
+	});
 
-	// --px and --py run -1..1 from the centre; the CSS turns them into tilt and depth.
-	const onPointerMove = (event) => {
+	const kick = useRef(() => {});
+
+	useEffect(() => {
+		let frame = 0;
+		let last = performance.now();
+		const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		const stop = () => {
+			cancelAnimationFrame(frame);
+			frame = 0;
+		};
+		const write = (s) => {
+			const el = ref.current;
+			if (el) {
+				el.style.setProperty("--px", s.px.toFixed(3));
+				el.style.setProperty("--py", s.py.toFixed(3));
+				el.style.setProperty("--hover", s.hover ? "1" : Math.min(Math.hypot(s.px, s.py) * 1.8, 1).toFixed(3));
+			}
+			if (poseRef) {
+				poseRef.current.px = s.px;
+				poseRef.current.py = s.py;
+			}
+		};
+		const tick = (now) => {
+			frame = 0;
+			if (document.hidden) return;
+			const dt = Math.min((now - last) / 1000, 0.05);
+			last = now;
+			const s = body.current;
+			if (reduced) {
+				s.px = s.tx;
+				s.py = s.ty;
+				s.vx = 0;
+				s.vy = 0;
+			} else {
+				s.vx += (s.tx - s.px) * STIFF * dt - s.vx * DAMP * dt;
+				s.vy += (s.ty - s.py) * STIFF * dt - s.vy * DAMP * dt;
+				s.px += s.vx * dt;
+				s.py += s.vy * dt;
+			}
+			const settled =
+				!s.hover && Math.hypot(s.px, s.py) < 0.004 && Math.hypot(s.vx, s.vy) < 0.004;
+			if (settled) {
+				s.px = 0;
+				s.py = 0;
+				s.vx = 0;
+				s.vy = 0;
+			}
+			write(s);
+			if (!settled) frame = requestAnimationFrame(tick);
+		};
+		const start = () => {
+			if (document.hidden || frame) return;
+			last = performance.now();
+			frame = requestAnimationFrame(tick);
+		};
+		kick.current = start;
+		const onVis = () => {
+			if (document.hidden) stop();
+			else start();
+		};
+		document.addEventListener("visibilitychange", onVis);
+		return () => {
+			stop();
+			document.removeEventListener("visibilitychange", onVis);
+			kick.current = () => {};
+		};
+	}, [poseRef]);
+
+	const aim = (event, hovering) => {
 		const rect = ref.current.getBoundingClientRect();
-		const style = ref.current.style;
-		style.setProperty("--px", clamp(((event.clientX - rect.left) / rect.width) * 2 - 1).toFixed(3));
-		style.setProperty("--py", clamp(((event.clientY - rect.top) / rect.height) * 2 - 1).toFixed(3));
-		style.setProperty("--hover", "1");
+		body.current.tx = clamp(((event.clientX - rect.left) / rect.width) * 2 - 1);
+		body.current.ty = clamp(((event.clientY - rect.top) / rect.height) * 2 - 1);
+		body.current.hover = hovering;
+		kick.current();
 	};
+
+	const onPointerMove = (event) => aim(event, 1);
 
 	const onPointerDown = (event) => {
 		ref.current.setPointerCapture(event.pointerId);
 		press.current = { x: event.clientX, y: event.clientY, at: performance.now() };
 		ringRef.current.classList.add("is-charging");
+		aim(event, 1);
 	};
 
 	const onPointerUp = () => {
@@ -58,6 +139,10 @@ const Portal = () => {
 		const dx = distance ? x / distance : 0;
 		const dy = distance ? y / distance : 0;
 
+		const s = body.current;
+		s.vx += -dx * (1.2 + 2.4 * power);
+		s.vy += -dy * (1.2 + 2.4 * power);
+
 		if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 			ring.animate(shakeFrames(dx, dy, distance, power), {
 				duration: 650 + 700 * power,
@@ -67,6 +152,8 @@ const Portal = () => {
 		if (navigator.vibrate) {
 			navigator.vibrate(Math.round((15 + 35 * distance) * (1 + 2 * power)));
 		}
+		if (bangRef && bangRef.current) bangRef.current(power, dx, dy);
+		kick.current();
 
 		const wave = document.createElement("span");
 		wave.className = "portal-hit";
@@ -83,7 +170,10 @@ const Portal = () => {
 	};
 
 	const onPointerLeave = () => {
-		["--px", "--py", "--hover"].forEach((name) => ref.current.style.setProperty(name, "0"));
+		body.current.tx = 0;
+		body.current.ty = 0;
+		body.current.hover = 0;
+		kick.current();
 	};
 
 	return (
@@ -97,11 +187,6 @@ const Portal = () => {
 			onPointerLeave={onPointerLeave}
 		>
 			<div className="zen-enso" aria-hidden="true" />
-			<div className="zen-ripples" aria-hidden="true">
-				<span className="zen-ripple" />
-				<span className="zen-ripple" />
-				<span className="zen-ripple" />
-			</div>
 			<div className="zen-orbs" aria-hidden="true">
 				<span className="zen-orb" />
 				<span className="zen-orb" />
