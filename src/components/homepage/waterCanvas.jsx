@@ -115,16 +115,17 @@ const createWeather = (view) => {
 		update: (t, dt) => {
 			if (!puff && t > nextPuff) {
 				const fromLeft = Math.random() < 0.5;
+				const wet = out[2] > 0.2;
 				puff = {
 					x: fromLeft ? -90 : view.W + 90,
 					y: between(0.1, 0.82) * view.H,
-					vx: (fromLeft ? 1 : -1) * between(160, 380),
-					vy: between(-110, 110),
-					radius: between(150, 280),
-					peak: between(0.4, 1),
+					vx: (fromLeft ? 1 : -1) * between(wet ? 55 : 70, wet ? 130 : 170),
+					vy: between(-40, 40),
+					radius: between(wet ? 200 : 170, wet ? 300 : 250),
+					peak: between(0.55, 1),
 					born: t,
-					life: between(1.6, 4.8),
-					wobble: between(0.7, 2.4),
+					life: between(wet ? 7 : 4.5, wet ? 13 : 9.5),
+					wobble: between(0.25, 0.8),
 				};
 				out[1] = fromLeft ? 1 : -1;
 				nextPuff = t + puff.life + (Math.random() < 0.28 ? between(0.5, 2) : between(5, 26));
@@ -135,11 +136,10 @@ const createWeather = (view) => {
 					puff = null;
 				} else {
 					puff.x += puff.vx * dt;
-					puff.y += puff.vy * dt + Math.sin(t * puff.wobble) * 55 * dt;
-					puff.vy += Math.sin(t * 0.65 + puff.wobble) * 40 * dt;
-					const swell = Math.sin(age * Math.PI);
-					const flicker = 0.72 + 0.28 * Math.sin(t * puff.wobble * 5.5);
-					const power = puff.peak * swell * flicker;
+					puff.y += puff.vy * dt + Math.sin(t * puff.wobble) * 18 * dt;
+					puff.vy += Math.sin(t * 0.35 + puff.wobble) * 12 * dt;
+					const swell = Math.pow(Math.sin(age * Math.PI), 0.62);
+					const power = puff.peak * swell;
 					out[0] = power;
 					gust.set([puff.x, puff.y, puff.radius, power]);
 				}
@@ -173,6 +173,9 @@ const createWeather = (view) => {
 				};
 			}
 			const falling = t < shower.end ? shower.power : 0;
+			if (!puff && falling > 0.2 && nextPuff > t + 2.8) {
+				nextPuff = t + between(0.6, 2.4);
+			}
 			out[2] += (falling - out[2]) * Math.min(dt * 0.55, 1);
 			if (falling >= level[0]) {
 				level[0] += (falling - level[0]) * Math.min(dt * 0.18, 1);

@@ -880,10 +880,31 @@ float gustAt(vec2 p) {
 }
 
 void gust(vec2 p, inout vec4 acc) {
-	float g = gustAt(p);
-	if (g < 0.02) return;
-	float streak = noise(vec2(p.x * 0.018 - u_time * 1.6 * u_weather.y, p.y * 0.05));
-	over(acc, vec3(0.9, 0.93, 0.88), g * (0.06 + 0.1 * smoothstep(0.55, 0.95, streak)));
+	if (u_gust.w < 0.01) return;
+	vec2 d = p - u_gust.xy;
+	float r = max(u_gust.z, 1.0);
+	float storm = smoothstep(0.12, 0.7, u_weather.z);
+	float rise = 0.16 * storm;
+	// y grows down. Separate balls, small base, so the bumps stay visible.
+	float body = length((d - vec2(0.0, r * 0.18)) * vec2(0.88, 2.7));
+	float left = length((d - vec2(-r * 0.48, r * 0.02)) * vec2(1.28, 1.22));
+	float mid = length((d - vec2(-r * 0.08, -r * (0.3 + rise))) * vec2(1.18, 1.1));
+	float right = length((d - vec2(r * 0.34, -r * (0.12 + rise * 0.5))) * vec2(1.22, 1.16));
+	float tip = length((d - vec2(r * 0.56, r * 0.1)) * vec2(1.4, 1.35));
+	float stack = length((d - vec2(-r * 0.28, -r * (0.48 + rise))) * vec2(1.32, 1.12));
+	float dist = min(min(min(body, left), min(mid, right)), min(tip, stack));
+	float n = fbm(d * 0.03);
+	float sil = 1.0 - smoothstep(r * 0.4, r * 0.5, dist - (n - 0.5) * r * 0.03);
+	float floorCut = 1.0 - smoothstep(r * 0.02, r * 0.22, d.y);
+	float g = sil * floorCut * u_gust.w;
+	if (g < 0.03) return;
+	float height = clamp(-d.y / max(r * 0.42, 1.0), 0.0, 1.0);
+	float grey = step(0.7, hash(floor(u_gust.xy * 0.008)));
+	float dark = max(storm, grey * 0.4);
+	vec3 fair = vec3(0.91, 0.93, 0.96) * (0.82 + 0.18 * height);
+	vec3 nimbus = vec3(0.48, 0.5, 0.54) * (0.62 + 0.38 * height);
+	vec3 col = mix(fair, nimbus, dark);
+	over(acc, col, clamp(g, 0.0, 1.0) * mix(0.42, 0.68, storm));
 }
 
 void leaves(vec2 p, inout vec4 acc) {
