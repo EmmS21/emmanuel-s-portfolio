@@ -884,27 +884,28 @@ void gust(vec2 p, inout vec4 acc) {
 	vec2 d = p - u_gust.xy;
 	float r = max(u_gust.z, 1.0);
 	float storm = smoothstep(0.12, 0.7, u_weather.z);
-	float rise = 0.16 * storm;
-	// y grows down. Separate balls, small base, so the bumps stay visible.
-	float body = length((d - vec2(0.0, r * 0.18)) * vec2(0.88, 2.7));
-	float left = length((d - vec2(-r * 0.48, r * 0.02)) * vec2(1.28, 1.22));
-	float mid = length((d - vec2(-r * 0.08, -r * (0.3 + rise))) * vec2(1.18, 1.1));
-	float right = length((d - vec2(r * 0.34, -r * (0.12 + rise * 0.5))) * vec2(1.22, 1.16));
-	float tip = length((d - vec2(r * 0.56, r * 0.1)) * vec2(1.4, 1.35));
-	float stack = length((d - vec2(-r * 0.28, -r * (0.48 + rise))) * vec2(1.32, 1.12));
-	float dist = min(min(min(body, left), min(mid, right)), min(tip, stack));
-	float n = fbm(d * 0.03);
-	float sil = 1.0 - smoothstep(r * 0.4, r * 0.5, dist - (n - 0.5) * r * 0.03);
-	float floorCut = 1.0 - smoothstep(r * 0.02, r * 0.22, d.y);
-	float g = sil * floorCut * u_gust.w;
+	vec2 seed = vec2(u_gust.z * 0.13, u_gust.z * 0.07);
+	float a = hash(seed);
+	float b = hash(seed + 1.7);
+	float c = hash(seed + 3.3);
+	float n1 = fbm(d * 0.013 + seed);
+	float n2 = fbm(d * 0.038 + seed * 1.4);
+	vec2 w = d + vec2(n1 - 0.5, n2 - 0.48) * r * 0.42;
+	float m0 = length((w - vec2(0.0, r * 0.1)) * vec2(0.7, 1.75));
+	float m1 = length((w - vec2((a - 0.5) * r * 0.52, (b - 0.58) * r * 0.26)) * vec2(1.08 + a * 0.35, 1.4));
+	float m2 = length((w - vec2((c - 0.5) * r * 0.48, (a - 0.62) * r * 0.3)) * vec2(1.15 + c * 0.3, 1.45));
+	float dist = min(m0, min(m1, m2));
+	float sil = 1.0 - smoothstep(r * 0.3, r * 0.6, dist - (n2 - 0.45) * r * 0.2);
+	float floorCut = 1.0 - smoothstep(r * 0.06, r * 0.36, d.y + (n1 - 0.5) * r * 0.1);
+	float g = sil * floorCut * (0.72 + 0.28 * n2) * u_gust.w;
 	if (g < 0.03) return;
 	float height = clamp(-d.y / max(r * 0.42, 1.0), 0.0, 1.0);
-	float grey = step(0.7, hash(floor(u_gust.xy * 0.008)));
+	float grey = step(0.7, hash(seed + 8.2));
 	float dark = max(storm, grey * 0.4);
-	vec3 fair = vec3(0.91, 0.93, 0.96) * (0.82 + 0.18 * height);
-	vec3 nimbus = vec3(0.48, 0.5, 0.54) * (0.62 + 0.38 * height);
+	vec3 fair = vec3(0.88, 0.9, 0.93) * (0.74 + 0.2 * height);
+	vec3 nimbus = vec3(0.46, 0.48, 0.52) * (0.58 + 0.34 * height);
 	vec3 col = mix(fair, nimbus, dark);
-	over(acc, col, clamp(g, 0.0, 1.0) * mix(0.42, 0.68, storm));
+	over(acc, col, clamp(g, 0.0, 1.0) * mix(0.34, 0.56, storm));
 }
 
 void leaves(vec2 p, inout vec4 acc) {

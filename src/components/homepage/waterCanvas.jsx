@@ -117,15 +117,15 @@ const createWeather = (view) => {
 				const fromLeft = Math.random() < 0.5;
 				const wet = out[2] > 0.2;
 				puff = {
-					x: fromLeft ? -90 : view.W + 90,
+					x: fromLeft ? -20 : view.W + 20,
 					y: between(0.1, 0.82) * view.H,
-					vx: (fromLeft ? 1 : -1) * between(wet ? 55 : 70, wet ? 130 : 170),
-					vy: between(-40, 40),
+					vx: (fromLeft ? 1 : -1) * between(wet ? 18 : 24, wet ? 42 : 58),
+					vy: between(-12, 12),
 					radius: between(wet ? 200 : 170, wet ? 300 : 250),
 					peak: between(0.55, 1),
 					born: t,
-					life: between(wet ? 7 : 4.5, wet ? 13 : 9.5),
-					wobble: between(0.25, 0.8),
+					life: between(wet ? 12 : 8, wet ? 20 : 16),
+					wobble: between(0.12, 0.4),
 				};
 				out[1] = fromLeft ? 1 : -1;
 				nextPuff = t + puff.life + (Math.random() < 0.28 ? between(0.5, 2) : between(5, 26));
@@ -136,8 +136,8 @@ const createWeather = (view) => {
 					puff = null;
 				} else {
 					puff.x += puff.vx * dt;
-					puff.y += puff.vy * dt + Math.sin(t * puff.wobble) * 18 * dt;
-					puff.vy += Math.sin(t * 0.35 + puff.wobble) * 12 * dt;
+					puff.y += puff.vy * dt + Math.sin(t * puff.wobble) * 6 * dt;
+					puff.vy += Math.sin(t * 0.18 + puff.wobble) * 4 * dt;
 					const swell = Math.pow(Math.sin(age * Math.PI), 0.62);
 					const power = puff.peak * swell;
 					out[0] = power;
