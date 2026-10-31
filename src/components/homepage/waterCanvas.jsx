@@ -4,14 +4,19 @@ import { MAX_RIVERS, TRAIL, IMPULSE, sizeCanvas } from "./riverStrips";
 import { captureGlError, createGlWater } from "./waterGl";
 
 const MAX_PACE = 900;
+const DROP = 34;
+const DROP_MS = 70;
 
-// Keeps the last TRAIL cursor samples in map units, newest first.
+// Slot 0 is the live finger. Older slots are the path already crossed.
 const createTrail = () => {
 	const trail = new Float32Array(TRAIL * 4);
 	const times = new Float32Array(TRAIL).fill(-1e6);
 	const ages = new Float32Array(TRAIL);
 	let finger = null;
-	let lastAt = 0;
+	let lastDropX = 0;
+	let lastDropY = 0;
+	let lastDropAt = 0;
+	let hasDrop = false;
 	return {
 		trail,
 		ages,
@@ -38,10 +43,14 @@ const createTrail = () => {
 						vy *= MAX_PACE / pace;
 					}
 				}
-				if (now - lastAt > 18) {
+				const moved = hasDrop ? Math.hypot(finger.x - lastDropX, finger.y - lastDropY) : DROP;
+				if (!hasDrop || moved >= DROP || (moved > 8 && now - lastDropAt > DROP_MS)) {
 					trail.copyWithin(4, 0, (TRAIL - 1) * 4);
 					times.copyWithin(1, 0, TRAIL - 1);
-					lastAt = now;
+					lastDropX = finger.x;
+					lastDropY = finger.y;
+					lastDropAt = now;
+					hasDrop = true;
 				}
 				trail.set([finger.x, finger.y, vx, vy], 0);
 				times[0] = now;

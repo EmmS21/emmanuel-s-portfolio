@@ -1,6 +1,7 @@
 export const MAX_RIVERS = 8;
-// How many recent cursor samples the water remembers.
-export const TRAIL = 12;
+// Path points the water keeps. Spaced by distance, not time, so a
+// long drag still fits without growing the per-pixel wake loop.
+export const TRAIL = 16;
 // Pushes from the portrait. Live several seconds so a wave can reach a dock.
 export const IMPULSE = 8;
 // Share of each strip's half-width that is water; the rest is wet bank.

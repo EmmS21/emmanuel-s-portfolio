@@ -352,21 +352,30 @@ float wake(vec2 q) {
 	float h = 0.0;
 	for (int i = 0; i < ${TRAIL}; i++) {
 		float a = u_age[i];
+		if (a > 3.2) continue;
 		vec2 vel = u_trail[i].zw;
 		float spd = length(vel);
-		float pace = min(spd / 260.0, 1.0);
-		if (a > 2.6 || pace < 0.012) continue;
-		vec2 d = q - u_trail[i].xy;
-		vec2 dir = vel / max(spd, 1.0);
+		vec2 src = u_trail[i].xy + v_tan * a * 12.0;
+		vec2 d = q - src;
+		float dist = length(d);
+		vec2 dir = spd > 8.0 ? vel / spd : v_tan;
 		float along = dot(d, dir);
 		float across = d.x * dir.y - d.y * dir.x;
-		float spread = 8.0 + a * 42.0;
-		float side = abs(across) - along * 0.32;
-		float arm = exp(-side * side / (spread * 0.5))
-			* exp(-along * along / (spread * spread));
-		float bow = exp(-dot(d, d) / 90.0) * smoothstep(10.0, -6.0, along);
-		float trough = -exp(-(along + 10.0) * (along + 10.0) / 80.0) * exp(-across * across / 48.0);
-		h += (arm * 0.7 + bow * 0.85 + trough * 0.65) * exp(-a * 0.75) * pace;
+		float live = exp(-a * 3.2);
+		float fade = exp(-a * 0.42);
+		float dent = -exp(-dist * dist / 70.0);
+		float bow = exp(-dist * dist / 95.0) * smoothstep(12.0, -4.0, along);
+		float ringR = a * 36.0;
+		float gap = dist - ringR;
+		float ring = sin(gap * 0.2) * exp(-gap * gap / 150.0);
+		float pace = min(spd / 180.0, 1.0);
+		float spread = 10.0 + a * 34.0;
+		float side = abs(across) - along * 0.28;
+		float arm = exp(-side * side / (spread * 0.55)) * exp(-along * along / (spread * spread));
+		h += dent * mix(0.28, 0.95, live);
+		h += bow * live * 0.7;
+		h += ring * fade * (0.4 + 0.35 * pace);
+		h += arm * fade * pace * 0.4;
 	}
 	return h;
 }
@@ -441,11 +450,11 @@ void main() {
 
 	vec2 across = vec2(v_tan.y, -v_tan.x);
 	vec2 push = u_trail[0].zw;
-	float pace = min(length(push) / 260.0, 1.0);
-	float near = exp(-pow(distance(v_world, u_trail[0].xy), 2.0) / 2200.0) * exp(-u_age[0] * 1.15);
-	float energy = max(mix(0.25, 1.0, v_lit), max(near * pace, smoothstep(0.2, 1.5, shake)));
+	float pace = min(length(push) / 180.0, 1.0);
+	float near = exp(-pow(distance(v_world, u_trail[0].xy), 2.0) / 1600.0) * exp(-u_age[0] * 0.7);
+	float energy = max(mix(0.25, 1.0, v_lit), max(near * max(pace, 0.35), smoothstep(0.2, 1.5, shake)));
 
-	vec2 p = vec2(v_side * v_half, v_along) - vec2(dot(push, across), dot(push, v_tan)) * 0.16 * near;
+	vec2 p = vec2(v_side * v_half, v_along) - vec2(dot(push, across), dot(push, v_tan)) * 0.2 * near;
 	vec2 s0 = surface(p, energy, speed);
 	float hx = surface(p + vec2(0.7, 0.0), energy, speed).x;
 	float hy = surface(p + vec2(0.0, 0.7), energy, speed).x;
