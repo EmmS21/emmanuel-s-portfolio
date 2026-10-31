@@ -71,7 +71,7 @@ float rings(vec2 q) {
 	return h;
 }
 // Dispersive channel waves: a shove sends a short train, not one bump.
-// Longer crests outrun shorter ones; banks warp the front so it is not a wall.
+// The front bends across the channel so it is not a straight wash.
 float pulse(float along, float across) {
 	float h = 0.0;
 	for (int i = 0; i < ${IMPULSE}; i++) {
@@ -83,18 +83,37 @@ float pulse(float along, float across) {
 		float k2 = hash(seed + 4.1);
 		float t = max(a - (0.32 + 0.18 * k), 0.0);
 		float front = t * (68.0 + 36.0 * k2);
-		float skew = across * (0.4 + 0.55 * hash(seed + 8.2));
-		float jitter = (noise(vec2(along * 0.035, k * 9.0)) - 0.5) * 22.0;
-		float d = along - front + skew + jitter;
-		float envelope = exp(-d * d / (1100.0 + 900.0 * hash(seed + 2.6))) * exp(-a * 0.11) * p;
-		float longW = sin(d * (0.038 + 0.02 * k) + k * 6.0);
-		float midW = sin(d * (0.085 + 0.03 * k2) - across * 0.07 + a * 1.1);
-		float shortW = sin(d * (0.16 + 0.05 * k) + across * 0.11 + seed.x);
-		float chop = sin(d * 0.29 + across * 0.2 + a * 3.4)
-			* (0.35 + 0.4 * noise(vec2(along * 0.07, across * 0.12 + k)));
-		h += (longW * 0.5 + midW * 0.32 + shortW * 0.22 + chop * 0.18) * envelope * 1.55;
+		float warp = across * (1.3 + 1.7 * hash(seed + 8.2));
+		warp += sin(across * (0.09 + 0.07 * k) + k * 4.2) * (20.0 + 26.0 * k2);
+		warp += (noise(vec2(across * 0.04, k * 9.0)) - 0.5) * 34.0;
+		warp += (noise(vec2(along * 0.018, across * 0.03 + k)) - 0.5) * 26.0;
+		float d = along - front + warp;
+		float envelope = exp(-d * d / (3200.0 + 1600.0 * hash(seed + 2.6))) * exp(-a * 0.1) * p;
+		float longW = sin(d * (0.034 + 0.018 * k) + k * 6.0 + across * 0.04);
+		float midW = sin(d * (0.072 + 0.028 * k2) - across * 0.09 + a * 0.9);
+		float shortW = sin(d * (0.13 + 0.04 * k) + across * 0.14 + seed.x);
+		float follow = sin((d + 26.0 + 16.0 * k2) * 0.055 + k * 2.2);
+		float chop = sin(d * 0.24 + across * 0.18 + a * 2.6)
+			* (0.3 + 0.45 * noise(vec2(along * 0.06, across * 0.1 + k)));
+		h += (longW * 0.48 + midW * 0.3 + shortW * 0.18 + follow * 0.28 + chop * 0.16) * envelope * 1.45;
 	}
 	return h;
+}
+// Local swell at this point, and how hard the icon has been shaken.
+vec2 surgePair(float along) {
+	float local = 0.0;
+	float shake = 0.0;
+	for (int i = 0; i < ${IMPULSE}; i++) {
+		float a = u_impAge[i];
+		float p = u_impulse[i].z;
+		if (a > 10.0 || p < 0.02) continue;
+		float live = p * exp(-a * 0.09);
+		shake += live;
+		float t = max(a - 0.32, 0.0);
+		float d = along - t * 80.0;
+		local += live * exp(-d * d / 2800.0);
+	}
+	return vec2(local, shake);
 }
 `;
 
@@ -333,10 +352,21 @@ float wake(vec2 q) {
 	float h = 0.0;
 	for (int i = 0; i < ${TRAIL}; i++) {
 		float a = u_age[i];
-		float pace = min(length(u_trail[i].zw) / 400.0, 1.0);
-		if (a > 1.6 || pace < 0.02) continue;
-		float x = distance(q, u_trail[i].xy) - a * 45.0;
-		h += sin(x * 0.9) * exp(-x * x / 18.0) * exp(-a * 2.2) * pace * 0.7;
+		vec2 vel = u_trail[i].zw;
+		float spd = length(vel);
+		float pace = min(spd / 260.0, 1.0);
+		if (a > 2.6 || pace < 0.012) continue;
+		vec2 d = q - u_trail[i].xy;
+		vec2 dir = vel / max(spd, 1.0);
+		float along = dot(d, dir);
+		float across = d.x * dir.y - d.y * dir.x;
+		float spread = 8.0 + a * 42.0;
+		float side = abs(across) - along * 0.32;
+		float arm = exp(-side * side / (spread * 0.5))
+			* exp(-along * along / (spread * spread));
+		float bow = exp(-dot(d, d) / 90.0) * smoothstep(10.0, -6.0, along);
+		float trough = -exp(-(along + 10.0) * (along + 10.0) / 80.0) * exp(-across * across / 48.0);
+		h += (arm * 0.7 + bow * 0.85 + trough * 0.65) * exp(-a * 0.75) * pace;
 	}
 	return h;
 }
@@ -398,19 +428,24 @@ vec2 rainHit(vec2 q) {
 
 void main() {
 	float flood = smoothstep(0.4, 0.92, u_level);
+	vec2 swell = surgePair(v_along);
+	float surge = swell.x;
+	float shake = swell.y;
 	float band = mix(${WATER.toFixed(2)}, 0.84, flood);
-	float wobble = (noise(vec2(v_along * 0.02, v_side > 0.0 ? 3.0 : 7.0)) - 0.5) * 0.3;
+	band = mix(band, min(band + 0.3, 0.96), smoothstep(0.2, 1.7, shake + surge));
+	float wobble = (noise(vec2(v_along * 0.02, v_side > 0.0 ? 3.0 : 7.0)) - 0.5) * mix(0.3, 0.55, clamp(shake, 0.0, 1.0));
 	float w = abs(v_side) / (band * (1.0 + wobble));
 	float depth = 1.0 - min(w * w, 1.0);
 	float speed = mix(0.4, 1.0, depth);
+	speed = mix(speed, 1.0, smoothstep(0.25, 1.5, shake));
 
 	vec2 across = vec2(v_tan.y, -v_tan.x);
 	vec2 push = u_trail[0].zw;
-	float pace = min(length(push) / 400.0, 1.0);
-	float near = exp(-pow(distance(v_world, u_trail[0].xy), 2.0) / 900.0) * exp(-u_age[0] * 3.0);
-	float energy = max(mix(0.25, 1.0, v_lit), near * pace);
+	float pace = min(length(push) / 260.0, 1.0);
+	float near = exp(-pow(distance(v_world, u_trail[0].xy), 2.0) / 2200.0) * exp(-u_age[0] * 1.15);
+	float energy = max(mix(0.25, 1.0, v_lit), max(near * pace, smoothstep(0.2, 1.5, shake)));
 
-	vec2 p = vec2(v_side * v_half, v_along) - vec2(dot(push, across), dot(push, v_tan)) * 0.05 * near;
+	vec2 p = vec2(v_side * v_half, v_along) - vec2(dot(push, across), dot(push, v_tan)) * 0.16 * near;
 	vec2 s0 = surface(p, energy, speed);
 	float hx = surface(p + vec2(0.7, 0.0), energy, speed).x;
 	float hy = surface(p + vec2(0.0, 0.7), energy, speed).x;
@@ -422,8 +457,10 @@ void main() {
 	s0.x += wake(v_world) + r0.x + wave;
 	hx += wake(v_world + across * 0.7) + rx.x + rings(v_world + across * 0.7) + pulse(v_along, acrossPos + 0.7);
 	hy += wake(v_world + v_tan * 0.7) + ry.x + rings(v_world + v_tan * 0.7) + pulse(v_along + 0.7, acrossPos);
-	s0.y += r0.y + abs(wave) * 0.25;
-	float bump = mix(1.6, 2.6, energy) + u_weather.x * 1.2;
+	float breakers = smoothstep(0.5, 1.2, wave) *
+		smoothstep(0.38, 0.72, noise(vec2(acrossPos * 0.07, v_along * 0.045 + u_time * 0.35)));
+	s0.y += r0.y + breakers * 0.55 * clamp(shake, 0.0, 1.5);
+	float bump = mix(1.6, 2.6, energy) + u_weather.x * 1.2 + shake * 0.85;
 	vec3 n = normalize(vec3((s0.x - hx) * bump, (s0.x - hy) * bump, 1.0));
 
 	float sky = fbm(vec2(v_along * 0.004 + v_side * 0.3, 1.0));
@@ -466,9 +503,12 @@ void main() {
 	vec3 ground = mix(vec3(0.05, 0.047, 0.035), vec3(0.05, 0.08, 0.045), smoothstep(0.4, 0.7, moss) * smoothstep(1.1, 1.6, w));
 	float bankA = (1.0 - smoothstep(1.0, bankW, w)) * 0.7;
 
+	float gully = fbm(vec2(v_along * 0.035, v_side * 2.4 + v_river * 3.0));
+	float stream = smoothstep(0.64, 0.8, gully) * smoothstep(0.3, 1.1, shake + surge) *
+		smoothstep(0.92, 1.05, w) * (1.0 - smoothstep(1.35, 1.62, w));
 	vec3 c = mix(ground, rock, onBank);
-	c = mix(c, col, waterA);
-	float a = max(max(waterA, bankA), onBank);
+	c = mix(c, col, max(waterA, stream * 0.85));
+	float a = max(max(max(waterA, bankA), onBank), stream * 0.8);
 
 	a *= 1.0 - smoothstep(u_reveal * 1.1 - 0.1, u_reveal * 1.1, v_t);
 	a *= smoothstep(0.0, 0.05, v_t);
@@ -839,33 +879,30 @@ void birds(vec2 p, inout vec4 acc) {
 			float w1 = hash(vec2(g, cycle + 15.0));
 			float w2 = hash(vec2(cycle, g + 16.0));
 			at += vec2(
-				sin(u_time * mix(0.5, 1.8, w1) + g * 2.1),
-				cos(u_time * mix(0.4, 1.6, w2) + g * 1.4)
-			) * mix(3.0, 13.0, hash(vec2(g, cycle + 17.0)));
+				sin(u_time * mix(0.35, 0.9, w1) + g * 2.1),
+				cos(u_time * mix(0.3, 0.8, w2) + g * 1.4)
+			) * mix(0.6, 2.8, hash(vec2(g, cycle + 17.0)));
 			vec2 b = local - at;
 			float scale = scale0 * mix(0.72, 1.28, hash(vec2(g, cycle + 18.0)));
 			if (abs(b.x) > 12.0 * scale || abs(b.y) > 11.0 * scale) continue;
-			float flap = 0.5 + 0.5 * sin(u_time * mix(7.0, 12.5, hash(vec2(g, 19.0))) + g * 2.8);
+			float flap = 0.5 + 0.5 * sin(u_time * mix(3.1, 5.6, hash(vec2(g, 19.0))) + g * 2.8);
 			vec2 q = b / scale;
-			float body = length((q - vec2(0.08, 0.04)) / vec2(1.55, 0.4)) - 0.95;
-			float head = length((q - vec2(1.38, 0.2)) / vec2(0.5, 0.42)) - 1.0;
-			float beak = length((q - vec2(1.95, 0.16)) / vec2(0.62, 0.13)) - 1.0;
-			vec2 tq = q + vec2(1.62, 0.02);
-			float tail = min(
-				length((tq - vec2(0.0, 0.24)) / vec2(1.12, 0.16)) - 0.52,
-				length((tq - vec2(0.0, -0.2)) / vec2(1.22, 0.14)) - 0.52
-			);
-			vec2 sh = q - vec2(-0.05, 0.1);
-			float up = mix(0.2, 1.2, flap);
-			vec2 wu = vec2(sh.x * 0.42 + sh.y * up, sh.y - sh.x * 0.2);
-			float wingU = length(wu / vec2(2.15, 0.26)) - 1.0;
-			float dn = mix(1.05, 0.15, flap);
-			vec2 wl = vec2(sh.x * 0.5 - sh.y * dn, sh.y + sh.x * 0.16);
-			float wingL = length(wl / vec2(1.65, 0.22)) - 1.0;
+			float body = length((q - vec2(0.04, 0.02)) / vec2(1.85, 0.3)) - 0.95;
+			float head = length((q - vec2(1.42, 0.1)) / vec2(0.42, 0.34)) - 1.0;
+			float beak = length((q - vec2(1.92, 0.08)) / vec2(0.55, 0.1)) - 1.0;
+			vec2 tq = q + vec2(1.55, 0.0);
+			float tail = length((tq - vec2(0.0, 0.0)) / vec2(1.15, 0.14)) - 0.55;
+			vec2 sh = q - vec2(-0.08, 0.04);
+			float up = mix(0.12, 1.05, flap);
+			vec2 wu = vec2(sh.x * 0.38 + sh.y * up, sh.y - sh.x * 0.18);
+			float wingU = length(wu / vec2(2.05, 0.18)) - 1.0;
+			float dn = mix(0.95, 0.12, flap);
+			vec2 wl = vec2(sh.x * 0.46 - sh.y * dn, sh.y + sh.x * 0.14);
+			float wingL = length(wl / vec2(1.55, 0.16)) - 1.0;
 			float sil = min(min(body, head), min(min(beak, tail), min(wingU, wingL)));
-			vec3 col = mix(vec3(0.22, 0.24, 0.2), vec3(0.62, 0.6, 0.54), hash(vec2(g, cycle + 20.0)));
-			col = mix(col, col * 1.28, clamp(0.55 - q.y, 0.0, 1.0) * 0.35);
-			over(acc, col, (1.0 - smoothstep(0.0, 0.5, sil)) * fade);
+			vec3 col = mix(vec3(0.14, 0.14, 0.13), vec3(0.32, 0.3, 0.27), hash(vec2(g, cycle + 20.0)) * 0.55);
+			col = mix(col, col * 1.18, clamp(0.4 - q.y, 0.0, 1.0) * 0.4);
+			over(acc, col, (1.0 - smoothstep(0.0, 0.38, sil)) * fade);
 		}
 	}
 }
@@ -896,7 +933,12 @@ void gust(vec2 p, inout vec4 acc) {
 	float m2 = length((w - vec2((c - 0.5) * r * 0.48, (a - 0.62) * r * 0.3)) * vec2(1.15 + c * 0.3, 1.45));
 	float dist = min(m0, min(m1, m2));
 	float sil = 1.0 - smoothstep(r * 0.3, r * 0.6, dist - (n2 - 0.45) * r * 0.2);
-	float floorCut = 1.0 - smoothstep(r * 0.06, r * 0.36, d.y + (n1 - 0.5) * r * 0.1);
+	float n3 = fbm(d * 0.055 + seed * 2.1);
+	float floorCut = 1.0 - smoothstep(
+		r * 0.02,
+		r * 0.42,
+		d.y + (n1 - 0.5) * r * 0.3 + (n3 - 0.5) * r * 0.24
+	);
 	float g = sil * floorCut * (0.72 + 0.28 * n2) * u_gust.w;
 	if (g < 0.03) return;
 	float height = clamp(-d.y / max(r * 0.42, 1.0), 0.0, 1.0);
@@ -905,7 +947,7 @@ void gust(vec2 p, inout vec4 acc) {
 	vec3 fair = vec3(0.88, 0.9, 0.93) * (0.74 + 0.2 * height);
 	vec3 nimbus = vec3(0.46, 0.48, 0.52) * (0.58 + 0.34 * height);
 	vec3 col = mix(fair, nimbus, dark);
-	over(acc, col, clamp(g, 0.0, 1.0) * mix(0.34, 0.56, storm));
+	over(acc, col, clamp(g, 0.0, 1.0) * mix(0.28, 0.64, u_gust.w) * mix(0.9, 1.15, storm));
 }
 
 void leaves(vec2 p, inout vec4 acc) {

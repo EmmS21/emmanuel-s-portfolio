@@ -10,33 +10,41 @@ const createTrail = () => {
 	const trail = new Float32Array(TRAIL * 4);
 	const times = new Float32Array(TRAIL).fill(-1e6);
 	const ages = new Float32Array(TRAIL);
-	let pointer = null;
+	let finger = null;
 	let lastAt = 0;
 	return {
 		trail,
 		ages,
 		move: (x, y, now) => {
-			pointer = { x, y, now };
+			finger = { x, y, now };
+		},
+		leave: () => {
+			finger = null;
 		},
 		update: (now) => {
-			if (pointer && now - lastAt > 40) {
-				const dt = Math.max((pointer.now - times[0]) / 1000, 0.016);
-				let vx = (pointer.x - trail[0]) / dt;
-				let vy = (pointer.y - trail[1]) / dt;
-				const pace = Math.hypot(vx, vy);
-				if (times[0] < -1e5 || pace > MAX_PACE * 4) {
-					vx = 0;
-					vy = 0;
-				} else if (pace > MAX_PACE) {
-					vx *= MAX_PACE / pace;
-					vy *= MAX_PACE / pace;
+			if (finger) {
+				const dt = Math.max((now - times[0]) / 1000, 0.008);
+				let vx = 0;
+				let vy = 0;
+				if (times[0] > -1e5) {
+					vx = (finger.x - trail[0]) / dt;
+					vy = (finger.y - trail[1]) / dt;
+					const pace = Math.hypot(vx, vy);
+					if (pace > MAX_PACE * 4) {
+						vx = 0;
+						vy = 0;
+					} else if (pace > MAX_PACE) {
+						vx *= MAX_PACE / pace;
+						vy *= MAX_PACE / pace;
+					}
 				}
-				trail.copyWithin(4, 0, (TRAIL - 1) * 4);
-				times.copyWithin(1, 0, TRAIL - 1);
-				trail.set([pointer.x, pointer.y, vx, vy], 0);
-				times[0] = pointer.now;
-				lastAt = now;
-				pointer = null;
+				if (now - lastAt > 18) {
+					trail.copyWithin(4, 0, (TRAIL - 1) * 4);
+					times.copyWithin(1, 0, TRAIL - 1);
+					lastAt = now;
+				}
+				trail.set([finger.x, finger.y, vx, vy], 0);
+				times[0] = now;
 			}
 			times.forEach((t, i) => {
 				ages[i] = (now - t) / 1000;
@@ -62,6 +70,23 @@ const createImpulses = (portal) => {
 		list.set([x, y, power, 0], 0);
 		ages[0] = 0;
 	};
+	// Keep traveling crests. A hard shake adds another crest; a tiny
+	// nudge only feeds the one that just left the sea.
+	const shove = (x, y, power) => {
+		if (ages[0] < 0.36 && list[2] > 0.04) {
+			list[2] = Math.min(list[2] + power * 0.4, 2.1);
+			return;
+		}
+		let oldest = 0;
+		for (let i = 1; i < IMPULSE; i++) {
+			if (ages[i] > ages[oldest]) oldest = i;
+		}
+		if (ages[oldest] < 4) {
+			list[2] = Math.min(list[2] + power * 0.3, 2.1);
+			return;
+		}
+		spawn(x, y, power);
+	};
 	return {
 		list,
 		ages,
@@ -71,7 +96,7 @@ const createImpulses = (portal) => {
 			pose[1] = py;
 		},
 		bang: (power, dx, dy) => {
-			spawn(portal.x + dx * 42, portal.y + dy * 42, Math.max(0.7, power * 1.35));
+			shove(portal.x + dx * 42, portal.y + dy * 42, Math.max(0.7, power * 1.35));
 			lastSpawn = performance.now();
 		},
 		update: (now, dt) => {
@@ -84,12 +109,13 @@ const createImpulses = (portal) => {
 			lastPy = pose[1];
 			lastAt = now;
 			const speed = Math.hypot(pose[2], pose[3]);
-			if (speed > 0.45 && now - lastSpawn > 70) {
+			const gap = speed > 1.4 ? 160 : speed > 0.8 ? 260 : 400;
+			if (speed > 0.45 && now - lastSpawn > gap) {
 				const n = speed || 1;
-				spawn(
+				shove(
 					portal.x + (pose[2] / n) * 38,
 					portal.y + (pose[3] / n) * 38,
-					Math.min(0.45 + speed * 0.4, 1.35)
+					Math.min(0.4 + speed * 0.5, 1.6)
 				);
 				lastSpawn = now;
 			}
@@ -114,20 +140,21 @@ const createWeather = (view) => {
 		level,
 		update: (t, dt) => {
 			if (!puff && t > nextPuff) {
-				const fromLeft = Math.random() < 0.5;
+				const windDir = Math.abs(out[0]) > 0.05 ? out[1] : Math.random() < 0.5 ? 1 : -1;
 				const wet = out[2] > 0.2;
+				const dense = wet || Math.random() < 0.42;
 				puff = {
-					x: fromLeft ? -20 : view.W + 20,
+					x: windDir > 0 ? -20 : view.W + 20,
 					y: between(0.1, 0.82) * view.H,
-					vx: (fromLeft ? 1 : -1) * between(wet ? 18 : 24, wet ? 42 : 58),
+					vx: windDir * between(wet ? 16 : 20, wet ? 36 : 48) * (dense ? 1.2 : 1),
 					vy: between(-12, 12),
-					radius: between(wet ? 200 : 170, wet ? 300 : 250),
-					peak: between(0.55, 1),
+					radius: between(dense ? 160 : 200, dense ? (wet ? 250 : 220) : 280),
+					peak: dense ? between(0.95, 1.4) : between(0.4, 0.75),
 					born: t,
 					life: between(wet ? 12 : 8, wet ? 20 : 16),
 					wobble: between(0.12, 0.4),
 				};
-				out[1] = fromLeft ? 1 : -1;
+				out[1] = windDir;
 				nextPuff = t + puff.life + (Math.random() < 0.28 ? between(0.5, 2) : between(5, 26));
 			}
 			if (puff) {
@@ -135,7 +162,7 @@ const createWeather = (view) => {
 				if (age >= 1) {
 					puff = null;
 				} else {
-					puff.x += puff.vx * dt;
+					puff.x += (puff.vx + out[1] * out[0] * 28) * dt;
 					puff.y += puff.vy * dt + Math.sin(t * puff.wobble) * 6 * dt;
 					puff.vy += Math.sin(t * 0.18 + puff.wobble) * 4 * dt;
 					const swell = Math.pow(Math.sin(age * Math.PI), 0.62);
@@ -254,7 +281,9 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, o
 				performance.now()
 			);
 		};
+		const onLeave = () => trail.leave();
 		stage.addEventListener("pointermove", onMove);
+		stage.addEventListener("pointerleave", onLeave);
 
 		let frame = 0;
 		let last = performance.now();
@@ -344,6 +373,7 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, o
 			canvas.removeEventListener("webglcontextlost", onLost);
 			observer.disconnect();
 			stage.removeEventListener("pointermove", onMove);
+			stage.removeEventListener("pointerleave", onLeave);
 			if (state.current.bangRef) state.current.bangRef.current = null;
 			water.destroy();
 			redraw.current = null;
