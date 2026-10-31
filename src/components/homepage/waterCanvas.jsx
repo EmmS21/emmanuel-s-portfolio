@@ -139,6 +139,7 @@ const createImpulses = (portal) => {
 const createWeather = (view) => {
 	const out = new Float32Array([0, 1, 0, 0]);
 	const gust = new Float32Array(4);
+	const storm = new Float32Array(1);
 	const level = new Float32Array(1);
 	let puff = null;
 	let nextPuff = between(2, 7);
@@ -146,19 +147,21 @@ const createWeather = (view) => {
 	return {
 		out,
 		gust,
+		storm,
 		level,
 		update: (t, dt) => {
 			if (!puff && t > nextPuff) {
 				const windDir = Math.abs(out[0]) > 0.05 ? out[1] : Math.random() < 0.5 ? 1 : -1;
 				const wet = out[2] > 0.2;
-				const dense = wet || Math.random() < 0.42;
+				const thunder = storm[0] > 0.7;
+				const dense = wet || thunder || Math.random() < 0.42;
 				puff = {
 					x: windDir > 0 ? -20 : view.W + 20,
-					y: between(0.1, 0.82) * view.H,
+					y: between(0.08, thunder ? 0.46 : 0.62) * view.H,
 					vx: windDir * between(wet ? 16 : 20, wet ? 36 : 48) * (dense ? 1.2 : 1),
 					vy: between(-12, 12),
-					radius: between(dense ? 160 : 200, dense ? (wet ? 250 : 220) : 280),
-					peak: dense ? between(0.95, 1.4) : between(0.4, 0.75),
+					radius: between(dense ? 150 : 190, thunder ? 240 : dense ? 220 : 260),
+					peak: thunder ? between(1.05, 1.3) : dense ? between(0.85, 1.2) : between(0.4, 0.75),
 					born: t,
 					life: between(wet ? 12 : 8, wet ? 20 : 16),
 					wobble: between(0.12, 0.4),
@@ -209,9 +212,11 @@ const createWeather = (view) => {
 				};
 			}
 			const falling = t < shower.end ? shower.power : 0;
-			if (!puff && falling > 0.2 && nextPuff > t + 2.8) {
-				nextPuff = t + between(0.6, 2.4);
+			if (!puff && falling > 0.15 && nextPuff > t + (shower.thunder ? 1.1 : 2.8)) {
+				nextPuff = t + between(0.4, shower.thunder ? 1.4 : 2.4);
 			}
+			const wantStorm = falling > 0.04 ? (shower.thunder ? 1 : 0.35 + 0.5 * falling) : 0;
+			storm[0] += (wantStorm - storm[0]) * Math.min(dt * 0.45, 1);
 			out[2] += (falling - out[2]) * Math.min(dt * 0.55, 1);
 			if (falling >= level[0]) {
 				level[0] += (falling - level[0]) * Math.min(dt * 0.18, 1);
@@ -332,6 +337,7 @@ const WaterCanvas = ({ layout, lit, focus, revealed, motion, poseRef, bangRef, o
 					time,
 					weather: weather.out,
 					gust: weather.gust,
+					storm: weather.storm,
 					level: weather.level,
 					pose: forces.pose,
 					impulse: forces.list,

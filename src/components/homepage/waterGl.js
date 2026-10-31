@@ -840,6 +840,7 @@ uniform vec2 u_px;
 uniform float u_time;
 uniform float u_reveal;
 uniform vec4 u_gust;
+uniform float u_storm;
 
 // Distant small birds, not geese. They share a heading, leave gaps, and weave.
 // Same 2x5 loop as before: empty slots and a flock box keep the cost down.
@@ -927,11 +928,39 @@ float gustAt(vec2 p) {
 	return exp(-r * r / (u_gust.z * u_gust.z)) * u_gust.w;
 }
 
+void rainBanks(vec2 p, inout vec4 acc) {
+	float rain = max(u_weather.z, u_storm * 0.5);
+	if (rain < 0.08) return;
+	float thunder = smoothstep(0.4, 0.95, u_storm);
+	for (int k = 0; k < 2; k++) {
+		float f = float(k);
+		vec2 seed = vec2(f * 9.1, 3.4 + floor(u_time * 0.02 + f));
+		float y = mix(0.05, 0.4, hash(seed)) * u_view.y;
+		float x = fract(hash(seed + 1.2) + u_time * 0.01 * u_weather.y) * (u_view.x + 260.0) - 130.0;
+		vec2 d = p - vec2(x, y);
+		float r = mix(150.0, 230.0, hash(seed + 4.0)) * mix(1.12, 0.82, f);
+		float n = fbm(d * 0.012 + seed);
+		vec2 w = d + (n - 0.5) * r * 0.38;
+		float sil = 1.0 - smoothstep(r * 0.32, r * 0.7, length(w * vec2(0.62, 1.75)) - (n - 0.45) * r * 0.16);
+		float holes = 0.5 + 0.5 * fbm(d * 0.02 + seed * 1.6);
+		float a = sil * holes * rain * mix(0.18, 0.3, thunder) * mix(0.72, 1.0, f);
+		a = min(a, mix(0.2, 0.36, thunder));
+		if (a < 0.02) continue;
+		vec3 farCol = vec3(0.56, 0.58, 0.62);
+		vec3 nearCol = vec3(0.38, 0.4, 0.44);
+		vec3 heavy = vec3(0.26, 0.27, 0.3);
+		vec3 col = mix(mix(farCol, nearCol, f), heavy, thunder * 0.75);
+		over(acc, col, a);
+	}
+}
+
 void gust(vec2 p, inout vec4 acc) {
 	if (u_gust.w < 0.01) return;
 	vec2 d = p - u_gust.xy;
 	float r = max(u_gust.z, 1.0);
-	float storm = smoothstep(0.12, 0.7, u_weather.z);
+	float storm = max(smoothstep(0.12, 0.7, u_weather.z), smoothstep(0.2, 0.85, u_storm));
+	float thunder = smoothstep(0.45, 0.95, u_storm);
+	float near = smoothstep(0.12, 0.68, clamp(u_gust.y / max(u_view.y, 1.0), 0.0, 1.0));
 	vec2 seed = vec2(u_gust.z * 0.13, u_gust.z * 0.07);
 	float a = hash(seed);
 	float b = hash(seed + 1.7);
@@ -953,12 +982,12 @@ void gust(vec2 p, inout vec4 acc) {
 	float g = sil * floorCut * (0.72 + 0.28 * n2) * u_gust.w;
 	if (g < 0.03) return;
 	float height = clamp(-d.y / max(r * 0.42, 1.0), 0.0, 1.0);
-	float grey = step(0.7, hash(seed + 8.2));
-	float dark = max(storm, grey * 0.4);
 	vec3 fair = vec3(0.88, 0.9, 0.93) * (0.74 + 0.2 * height);
-	vec3 nimbus = vec3(0.46, 0.48, 0.52) * (0.58 + 0.34 * height);
-	vec3 col = mix(fair, nimbus, dark);
-	over(acc, col, clamp(g, 0.0, 1.0) * mix(0.28, 0.64, u_gust.w) * mix(0.9, 1.15, storm));
+	vec3 nimbus = mix(vec3(0.48, 0.5, 0.54), vec3(0.28, 0.29, 0.32), thunder) * (0.55 + 0.4 * height);
+	vec3 col = mix(fair, nimbus, max(storm, 0.35 * (1.0 - near)));
+	float alpha = clamp(g, 0.0, 1.0) * mix(0.22, 0.5, u_gust.w) * mix(0.7, 1.0, near);
+	alpha = min(alpha * mix(1.0, 1.2, thunder), mix(0.3, 0.44, thunder));
+	over(acc, col, alpha);
 }
 
 void leaves(vec2 p, inout vec4 acc) {
@@ -1019,6 +1048,7 @@ void main() {
 	vec2 p = vec2(gl_FragCoord.x, u_px.y - gl_FragCoord.y) / u_px * u_view;
 	vec4 acc = vec4(0.0);
 	birds(p, acc);
+	if (u_weather.z > 0.08 || u_storm > 0.08) rainBanks(p, acc);
 	if (u_gust.w > 0.01) gust(p, acc);
 	if (u_gust.w > 0.01) leaves(p, acc);
 	if (u_weather.z > 0.01) rain(p, acc);
@@ -1270,6 +1300,7 @@ export const createGlWater = (canvas, layout) => {
 				reveal: loc("u_reveal"),
 				weather: loc("u_weather"),
 				gust: loc("u_gust"),
+				storm: loc("u_storm"),
 			};
 			return sky;
 		} catch (error) {
@@ -1289,7 +1320,7 @@ export const createGlWater = (canvas, layout) => {
 
 	return {
 		paintGround,
-		draw: ({ time, reveal, focus, lit, trail, ages, weather, gust, level, pose, impulse, impAge }) => {
+		draw: ({ time, reveal, focus, lit, trail, ages, weather, gust, storm, level, pose, impulse, impAge }) => {
 			gl.viewport(0, 0, canvas.width, canvas.height);
 			gl.disable(gl.BLEND);
 			gl.clearColor(0, 0, 0, 0);
@@ -1341,6 +1372,7 @@ export const createGlWater = (canvas, layout) => {
 					gl.uniform1f(pass.reveal, reveal);
 					gl.uniform4fv(pass.weather, weather);
 					gl.uniform4fv(pass.gust, gust);
+					if (pass.storm) gl.uniform1f(pass.storm, storm ? storm[0] : 0);
 					gl.drawArrays(gl.TRIANGLES, 0, 3);
 				}
 			} else {
