@@ -9,6 +9,9 @@
 	justify-content: center;
 	overflow: hidden;
 	background: var(--gradient-ocean);
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
 }
 
 .river-frame {
