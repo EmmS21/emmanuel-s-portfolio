@@ -32,7 +32,7 @@
 	},
 	"scripts": {
 		"start": "react-scripts start",
-		"build": "react-scripts build",
+		"build": "react-scripts build && node scripts/seo-postbuild.cjs",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
@@ -57,5 +57,8 @@
 	"prettier": {
 		"useTabs": true,
 		"tabWidth": 4
+	},
+	"devDependencies": {
+		"esbuild": "^0.28.2"
 	}
 }

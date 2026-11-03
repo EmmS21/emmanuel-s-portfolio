@@ -6,6 +6,7 @@ import ContactDock from "../components/homepage/contactDock";
 import { warm } from "../components/homepage/warmPanel";
 import INFO from "../data/user";
 import SEO from "../data/seo";
+import { buildPersonJsonLd } from "../utils/seoStructuredData";
 
 import "./styles/homepage.css";
 
@@ -28,6 +29,8 @@ const Homepage = () => {
 
 	const currentSEO = SEO.find((item) => item.page === "home");
 	const { homepage } = INFO;
+	const personJsonLd = buildPersonJsonLd(INFO, currentSEO);
+	const { linkedin, github, twitter } = INFO.socials;
 
 	const closeSkill = useCallback(() => setOpenSkill(null), []);
 	const closeHistory = useCallback(() => setHistoryOpen(false), []);
@@ -52,6 +55,13 @@ const Homepage = () => {
 				<meta name="twitter:title" content={currentSEO.title} />
 				<meta name="twitter:description" content={currentSEO.description} />
 				<meta name="twitter:image" content={currentSEO.ogImage} />
+				<link rel="canonical" href={`${currentSEO.url}/`} />
+				<link rel="me" href={linkedin} />
+				<link rel="me" href={github} />
+				<link rel="me" href={twitter} />
+				<script type="application/ld+json">
+					{JSON.stringify(personJsonLd)}
+				</script>
 			</Helmet>
 
 			<main className="page-content homepage-page">
