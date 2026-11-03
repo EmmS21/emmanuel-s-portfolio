@@ -65,10 +65,6 @@ const Homepage = () => {
 			</Helmet>
 
 			<main className="page-content homepage-page">
-				<h1 className="homepage-sr-only">
-					{INFO.main.name}: {homepage.pitch}
-				</h1>
-
 				<RiverMap
 					homepage={homepage}
 					motion={motion}
