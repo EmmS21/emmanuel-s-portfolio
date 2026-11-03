@@ -210,7 +210,7 @@ const RiverMap = ({
 					}}
 				/>
 
-				<p
+				<h1
 					className="river-name"
 					style={{
 						top: pct(
@@ -224,7 +224,7 @@ const RiverMap = ({
 					}}
 				>
 					{homepage.tagline}
-				</p>
+				</h1>
 
 				{skills.map((skill, i) => {
 					const label = layout.labels[i];
