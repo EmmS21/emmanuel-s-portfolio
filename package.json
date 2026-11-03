@@ -32,7 +32,7 @@
 	},
 	"scripts": {
 		"start": "react-scripts start",
-		"build": "react-scripts build && node scripts/prerender-home.cjs && node scripts/seo-postbuild.cjs",
+		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
@@ -57,11 +57,5 @@
 	"prettier": {
 		"useTabs": true,
 		"tabWidth": 4
-	},
-	"devDependencies": {
-		"cheerio": "^1.2.0",
-		"esbuild": "^0.28.2",
-		"puppeteer": "^25.16.0",
-		"serve": "^14.2.6"
 	}
 }
