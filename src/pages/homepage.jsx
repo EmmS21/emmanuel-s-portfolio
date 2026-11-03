@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 
 import RiverMap from "../components/homepage/riverMap";
 import ContactDock from "../components/homepage/contactDock";
+import HomepageSeoIndex from "../components/homepage/homepageSeoIndex";
 import { warm } from "../components/homepage/warmPanel";
 import INFO from "../data/user";
 import SEO from "../data/seo";
@@ -68,6 +69,7 @@ const Homepage = () => {
 				<h1 className="homepage-sr-only">
 					{INFO.main.name}: {homepage.pitch}
 				</h1>
+				<HomepageSeoIndex homepage={homepage} />
 
 				<RiverMap
 					homepage={homepage}

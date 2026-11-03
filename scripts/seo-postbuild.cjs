@@ -39,12 +39,5 @@ if (!html.includes('rel="canonical"')) {
 	html = html.replace("</head>", `${headBlock}\n\t</head>`);
 }
 
-if (!html.includes('id="crawl-snapshot"')) {
-	html = html.replace(
-		'<div id="root"></div>',
-		`${payload.crawlHtml}\n\t\t<div id="root"></div>`
-	);
-}
-
 fs.writeFileSync(indexPath, html);
-console.log("seo-postbuild: injected Person schema, canonical, rel=me, and crawl snapshot.");
+console.log("seo-postbuild: injected Person schema, canonical, and rel=me.");
