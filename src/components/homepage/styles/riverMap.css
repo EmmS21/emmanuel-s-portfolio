@@ -109,6 +109,7 @@
 	left: 50%;
 	transform: translateX(-50%);
 	margin: 0;
+	font-weight: inherit;
 	font-size: clamp(28px, 3.6cqw, 58px);
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
